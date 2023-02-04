@@ -1,0 +1,152 @@
+<!DOCTYPE HTML>
+<html lang = "th-TH">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เขียน ก ข</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+button {
+  background-color: bisque;
+  border: 2px solid red;
+  /* color: white; */
+  height: 30px;
+  width: 50px;
+  padding: 2px 2px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  /* font-size: 32px; */
+  margin: 2px 2px;
+  cursor: pointer;
+  border-radius: 35%;  
+}
+#div1 {
+  float: left;
+  width: 95%;
+  height: 160px;
+  margin: 5px;
+  padding: 1px;
+  border: 5px solid gray;
+  /* font-family: "Purisa Bold"; */
+    font-size: 32px;
+}
+#div2 {
+  float: left;
+  width: 95%;
+  height:72px;
+  margin: 5px;
+  padding: 1px;
+  border: 5px solid green;
+  font-size: 32px;
+  /* background-color: cream; */
+}
+#div3 {
+  float: left;
+  width: 95%;
+  height:300px;
+  margin: 10px;
+  padding: 1px;
+  border: 5px solid lime;
+  font-size: 24px ;
+  /* bacbground-color: yellow; */
+}
+span {overflow-wrap: break-word}
+span:hover {
+    background: bisque ;   
+}
+</style>
+<script>
+function allowDrop(ev) {
+  ev.preventDefault();
+}
+
+function drag(ev) {
+  ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+  ev.preventDefault();
+  var pick = ev.dataTransfer.getData("text");
+  ev.target.appendChild(document.getElementById(pick));
+}
+
+function say(sx){
+  var sfx = "audio/"+ sx + ".mp3";
+  var snd = new Audio(sfx);
+  snd.play();
+  snd.currentTime=0;
+}
+
+function cast(){
+  const conso = "กจฎฏดตบปอคฅฆงชซฌญฑฒณทธนพฟภมยรลวฬฮขฃฉฐถผฝศษสห"; //blue 
+  const cht4 = "ขฃฉฐถผฝศษสห"; //head high 11
+  const cht0 = "กจฎฏดตบปอ"; //head norm 9
+  const cht1 = "คฅฆงชซฌญฑฒณทธนพฟภมยรลวฬฮ"; //head low 24
+  const cde  = "ขฃฉฐถผฝศษสกจฎฏดตบปคฅฆฑฒทธพฟภฮ"; //dead end
+  const cle  = "ญณนมยรลวฬอ"; //live end
+  const cc2  = "ปร พร ตร กร คร ปล พล ทร กล คล กว คว ขว บร บล ฟร ฟล ดร" //compounds
+  const vowel = "\ะ\า\ิ\ี\ึ\ื\ุ\ู\เ\แ\โ\อ\ไ\ใ\ั\็\ำ\ั"; //red 
+  const tones = "\่\้\๊\๋"; //maroon
+  const numer = "๐๑๒๓๔๕๖๗๘๙.0123456789"; //indigo others are gray
+  // consonant: blue, vowel: orange, toner: brown
+  let ofx = genc(conso, '#0000ff', 6) + "<br> " +
+            genc(vowel, '#ff6e00', 4) + " " +
+            genc(tones, '#a52a2a', 3); 
+     	
+  document.getElementById("div1").innerHTML = ofx;
+}
+
+function genc(ls, col, n){
+  const lsa = ls.match(/\S/g);
+  lsa.sort(function(){return 0.5 - Math.random()});
+    
+  var xt = "";
+  var nb = ""; 
+  for (let i = 0; i < n; i++) {
+    x = lsa[i];
+    xt += "&nbsp<span draggable='true' ondragstart='drag(event)' id='o" + x +
+          "' style='color: " + col + "' onclick='say(\"v" + x + 
+          "\")' > " + x + "</span>&nbsp";
+  }
+  return xt;
+}
+
+let n = 0;
+function check() {
+// if word valid cut the word in div2 and paste after content in div3
+  let w = document.getElementById("div2").innerText ;
+  // strip off blanks, check ...and restyle
+  if (w == "") return;
+  let wk = w.replace(/\s/g, "");
+  if (wk == "") return;
+  n +=1;
+  let nth = "<span style='font-size:12px'>"+ n +".</span>";
+  if (n > 10) { // splash and sing
+       nth = "<span style='font-size: 16px; color: lime;'>"+ n +".</span>";
+  }
+  document.getElementById("div3").innerHTML += nth + " <b>" + wk +" </b>";
+  // copy word to cast/div1; clear word/div2
+  document.getElementById("div1").innerHTML += document.getElementById("div2").innerHTML ;
+  document.getElementById("div2").innerHTML = "";    
+}
+</script>
+</head>
+<body>
+  <h1 style="text-align:center;">เขียน ก ข</h2>
+<div>
+<button id="cast" onclick="cast()" title="เปลี่ยน ก ข">_⛽️_</button> 
+   เลือก แล้วลากไปใส่ กล่องเขียว
+<div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"> </div>
+</div>
+<div>
+<div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)"> </div>
+<button id="check" onclick="check()" title="เก็บคำ ไว้ตรวจ">-📩️-</button>
+  กด เก็บคำ ที่เขียนได้
+</div>
+<div id="div3" > </div>
+
+</body>
+</html>
