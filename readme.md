@@ -16,7 +16,7 @@
 หมายเหตุ 
 ก ข ทำงานไม่เหมือนกันทุกอย่าง บนคอมพิวเตอร์ มือถือ และ แท็บเลท เพราะ ขนาดจอ ต่างกัน และ ไม่เหมือนกันทุกอย่างใน browers (Edge/Windows, Firefox, Google Chrome, ...) ต่างๆ  ก ข  เขียน บน Firefox/Linux Mint 21.1, ตรวจ ลองกับ Edge/Windows 11, Chrome/Windows11, Chrome/Linux, และ Chrome/Android 8.
 ก ข  ทำงานบน Firefox/Linux ได้ตามคาดหวังมากที่สุด
-================
+
 
 KoKho: A learning aid package in Thai
 
