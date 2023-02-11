@@ -268,3 +268,228 @@ function doPing(e) {
   </body>
 </html>
 
+     ctx.fillStyle = "indigo"; ctx.fillRect(10, 100, 600, 2); // F
+     ctx.strokeText("D", 1, 114);
+     ctx.fillStyle = "blue";   ctx.fillRect(10, 110, 600, 1); // D
+     ctx.strokeText("B", 1, 124);
+     ctx.fillStyle = "green";  ctx.fillRect(10, 120, 600, 1); // B
+     ctx.strokeText("G", 1, 134);
+     ctx.fillStyle = "yellow"; ctx.fillRect(10, 130, 600, 1); // G
+
+     ctx.font = "42px Arial"; ctx.fillStyle = "black"; // Clefs
+     ctx.fillText("𝄞", 15, 66);
+     ctx.fillText("𝄢", 15, 125);
+     // Treble Quarter Notes start with C4 at x=160
+     ctx.font = "32px Arial Bold"; // notes
+     ctx.fillStyle = "red"; ctx.fillRect(157, 80, 16, 1); // a short ledger line for C4
+     ctx.fillStyle = "black"; // quarter notes in black
+     ctx.fillText("𝅘𝅥",  80, 93); // A4
+     ctx.fillText("𝅘𝅥", 120, 87); // B4
+     ctx.fillText("𝅘𝅥", 160, 83); // C4
+     ctx.fillText("𝅘𝅥", 200, 77); // D4
+     ctx.fillText("𝅘𝅥", 240, 73); // E4
+     ctx.fillText("𝅘𝅥", 280, 67); // F4
+     ctx.fillText("𝅘𝅥", 320, 63); // G4
+     ctx.fillText("𝅘𝅥", 360, 57); // A5
+     ctx.fillText("𝅘𝅥", 400, 53); // B5
+     ctx.fillText("𝅘𝅥", 440, 47); // C5
+     ctx.fillText("𝅘𝅥", 480, 43); // D5
+     ctx.fillText("𝅘𝅥", 520, 37); // E5
+     ctx.fillText("𝅘𝅥", 560, 33); // F5
+  }
+}
+</script>
+<style>
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+.sheet {
+  width: 100%;
+   height: 25%;
+  margin: 3px; 
+  display: block;
+  position: relative;
+}
+canvas {
+  width: 100%;
+   height:100%;
+  background-color: transparent; /*#ccc;*/ 
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: absolute;
+}
+.keypad {
+  width: 100%;
+   height: 100%;  
+  display: block;
+  position: absolute;
+ /* top 0.1%; */
+}
+
+/* block of white keys for placement */
+.wkeys {
+  border: none;
+  font-size: 0;
+  width: 100%;
+   height: 100%;
+  padding-left: 11%;
+  position: absolute;
+  /* z-index: 1;*/
+  display: block;
+}
+/* each white key class="wk" */
+button.wk{
+  background-color: transparent;
+  border: 1px solid gray;
+  border-radius: 5%;
+  width: 6.67%; 
+  height: 100%;
+  padding: 140px 0px 0px 0px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: bold; 
+  margin: 0px 0px;
+  cursor: pointer;
+   z-index: 1;
+}
+
+#C4, #C5 { border: 1px dotted red; }
+
+#A3:hover, #A4:hover { background-color: rgb(128, 0, 128, 0.5); } /* purple */
+#B3:hover, #B4:hover { background-color: rgb(0, 128, 0, 0.5); } /* green */
+#C4:hover, #C5:hover { background-color: rgb(255, 0, 0, 0.5); } /* red */
+#D4:hover, #D5:hover { background-color: rgb(0, 0, 255, 0.5); } /* blue */
+#E4:hover, #E5:hover { background-color: rgb(255, 165, 0, 0.5); } /* orange */
+#F4:hover, #F5:hover { background-color: rgb(75, 0, 130,0.5); } /*indigo */
+#G4:hover { background-color: rgb(255, 255, 0, 0.5); } /* yellow */
+
+/* block of black keys for placement */
+.bkeys {
+  font-size: 0;
+  border: none;
+  width: 100%;
+   height: 62.5%;
+  padding-left: 9.5%;
+  position: absolute;
+  /*z-index: 1;*/
+  display: block;
+  top: 0.1%;
+}
+/* each black key class="bk" */
+button.bk{
+  background-color: black;
+  border: 1px solid gray;
+  border-radius: 10%;   
+  width: 3.0%; 
+  height: 100%; /* 150px;*/
+  padding: 0px 0px 80px 0px;
+  text-align: center;
+  color: white; 
+  text-decoration: none;
+  display: inline-block;
+  font-size: 10px;
+  font-weight: bold; 
+  margin: 0px 0px;
+  cursor: pointer;
+    z-index: 1;
+}
+
+.bk:hover { background-color: lightgray; } /* apply to all black keys */
+/* gap filler for black keys*/
+.BB1 { border: none; width: 3.5%; height:1px; display: inline-block; 
+     position: relative; z-index: -1;}
+.BB2 { border: none; width: 10.5%; height:1px; display: inline-block; 
+     position: relative; z-index: -1;}
+
+</style>
+</head>
+<body onload="draw();">
+  <div class="sheet">
+    <canvas id="canvas" width="600" height="160"></canvas>
+
+    <div class="keypad" onclick="setevents()">
+      <div class="wkeys">
+     <button class="wk" id="A3" title="La A3">ลา<br>A3</button>
+     <button class="wk" id="B3" title="Tea B3">ที<br>B3</button>
+     <button class="wk" id="C4" title="Doe C4">โด่<br>C</button>
+     <button class="wk" id="D4" title="Ray D4">เร<br>D</button>
+     <button class="wk" id="E4" title="Me E4">มี<br>E</button>
+     <button class="wk" id="F4" title="Far F4">ฟา<br>F</button> 
+     <button class="wk" id="G4" title="So G4">โซ้<br>G</button>
+     <button class="wk" id="A4" title="La A4">ล้า<br>A</button>
+     <button class="wk" id="B4" title="Tea B4">ที้<br>B</button> 
+     <button class="wk" id="C5" title="Doe C5">โด๊<br>C5</button>
+     <button class="wk" id="D5" title="La D5">เร๊<br>D5</button>
+     <button class="wk" id="E5" title="Tea E5">มี๊<br>E5</button> 
+     <button class="wk" id="F5" title="Doe F5">ฟ๊า<br>F5</button>
+       </div>
+       <div class='bkeys'>
+     <button class="bk" id="G#3" title="Ab">G#</button>
+     <button class="BB1"></button>
+     <button class="bk" id="A#3" title="Bb">A#</button>
+     <button class="BB2"></button> 
+     <button class="bk" id="C#4" title="Db">C#</button>
+     <button class="BB1"></button>
+     <button class="bk" id="D#4" title="Eb">D#</button>
+     <button class="BB2"></button> 
+     <button class="bk" id="F#4" title="Gb">F#</button>
+     <button class="BB1"></button>
+     <button class="bk" id="G#4" title="Ab">G#</button>
+     <button class="BB1"></button>
+     <button class="bk" id="A#4" title="Bb">A#</button>
+     <button class="BB2"></button> 
+     <button class="bk" id="C#5" title="Db">C#</button>
+     <button class="BB1"></button>
+     <button class="bk" id="D#5" title="Eb">D#</button>
+     <button class="BB2"></button> 
+     <button class="bk" id="F#5" title="Gb">F#</button>
+       </div>
+    </div>
+  </div>
+  <br><br><br>
+  <div class='quiz' display="block"><b>เพลงอะไรเอ่ย?</b>
+  <p>เพลง 1: <b>E E 2E, E E 2E, E G C D, 4E, F F 2F, E E 2E, E D D E, 2D 2G, E E 2E, E E 2E, E G C D, 4E, F F 2F, E E 2E, G G F D, 4C</b></p>
+  <p>เพลง 2: <b>G G D D, E E 2D, C C B B, A A 2G, D D C C, B B 2A, D D C C, B B 2A, G G D D, E E 2D, C C B B, A A 2G</b></p>
+  </div>
+  <div class="help" display="block"><b>=น่ารู้=</b>
+    <p>&nbsp&nbspเสียง(โน๊ต)ดนตรี(สากล) มี ๑๒ เสียง เรียกกันจาก เสียงต่ำ ไป เสียงสูง ว่า C, C♯ (ซีช๊ารป หรือ D♭ ดีแฟลต), D, D♯ (E♭), E, F, F♯ (G♭), G, G♯ (A♭), A, A♯ (B♭) ชื่อเหล่านี้ ใช้ในระดับเสียง(octave อ๊อกเทฟ)ต่างๆด้วย ระดับเสียงที่ใช้มาก คือ Treble (Octave 4) และ Bass (Octave 3). เสียงที่ใช้ในการฝึกออกเสียง และฟัง ให้คุ้นเคย มี ๘  เสียง ใน octave 4 คือ C, D, E, F, G, A, B, C (หรือ Do โด่, Ray เร, Me มี, Far ฟา. So โซ้. La ล้า, Tea ที้, Do โด๊ - ดังที่ได้ยินใน The Sound of Music).</p>
+    <p>&nbsp&nbspเสียงดนตรี มีวิธีเขียน เป็น เครื่องหมาย เรียกว่า Note (โน๊ต) บน เส้นขนาน ๕ เส้น ที่เรียกว่า Staff (ซ่ะตาฟ หรือ  Stave) อย่างที่เห็นข้างบนนี้ ♩ เรียกว่า quarter note มีเสียงยาว ๑ วินาที อยู่บนเส้น เส้นหนึ่ง หรือ ระหว่าง ๒ เส้น หรือ ต่ำกว่า หรือ สูงกว่า เส้น staff ๕ เส้น ที่มีสีต่างๆ ตามเสียง และชื่อเสียง(ซ้ายมือสุด) ทั้ง ๒ ระดับ คือ Treble (Octave 4 มี 𝄞 กำกับ) และ Bass (Octave 3 มี 𝄢 กำกับ) เพื่อช่วยในการจำชื่อเสียง บางทีก็จำ โน๊ตบนเส้น Treble clef ว่า Every Good Boy Does Fine (และจำโน๊ต ในช่องระหว่างเส้น ว่า F-ACE) และ จำ โน๊ตบนเส้น Bass clef ว่า Good Boy Does Fine Again (และจำ โน๊ต ในช่องระหว่างเส้น ว่า ACE-G).</p>
+    <p>&nbsp&nbspเสียงโน๊ต C♯ (ซีช๊ารป หรือ D♭ ดีแฟลต), D♯ (E♭), F♯ (G♭), G♯ (A♭), A♯ (B♭) คือ เสียงระหว่างโน๊ต ๒ ตัว เช่น C♯ หรีอ D♭ จะสูงกว่า C แต่ต่ำกว่า D โน๊ตเหล่านี้คือ พวกแป้นดำ บนเปียโน จะเขียน ♯ (♭) กำกับไว้ข้างหน้าโน๊ต เช่น ♯♩ (♭♩) หรือ เขียนชื่อโน๊ต เช่น D♯ (E♭) ไว้ เหนือ (หรือ ใต้) ♩ เราจะยังไม่ฝึกอ่านโน๊ตเหล่านี้ </p>
+    <p>&nbsp&nbspโน๊ตอีกชุดหนึ่ง เช่น <b> &#119099 &nbsp &#119100 &nbsp &#119101 </b>(quarter rest)  <b>&#119102 &nbsp &#119103 </b> ... ใช้บอกให้ หยุดร้อง เงียบ ไม่ทำเสียงใดใด เป็นเวลานาน... เราควรฝึกโน๊ตเหล่านี้ 
+   </div>
+
+<script type="application/javascript">
+function setevents() {
+// ==Try adding several event handler for diff devices==
+// ==This seems to by-pass 'browser' audio.play restriction
+
+  const btns = document.querySelectorAll(".wk, .bk");
+  //console.log("select " + btns.length + " buttons.");
+
+function doPing(e) {
+  //console.log("doPing " + e.id);
+  var oc = e.id.substr(e.id.length-1, 1);
+  var nt = e.id.substr(0, e.id.length-1); 
+  var t = 4.0;
+  ping(nt, oc, t);
+  }
+  // mouseover -- allows dragging across keyboard while click does not
+  // touchstart == click on mobiles; touchmove == mouseover?
+  for (let i = 0; i < btns.length; i++) {
+    var bi = btns[i];
+    bi.addEventListener('mouseover', function (e) { doPing(this); });
+    bi.addEventListener('touchstart', function (e) { doPing(this); });
+  }
+  document.querySelector(".keypad").onclick = "";
+}
+</script>
+
+  </body>
+</html>
+
