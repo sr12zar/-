@@ -125,6 +125,7 @@ if (/^f/.test(document.location)) {
     });
 } else {
   // get dir list, build select box which gets the book
+/* ===this XHR part does not go on Github=== 
   var request = new XMLHttpRequest();
   request.open('GET', '/book/', true);
 
@@ -144,6 +145,17 @@ if (/^f/.test(document.location)) {
     }
   };
   request.send();
+*/ 
+ // ===Set up book-shef list --to be removed when issues above resolved
+ const fList = ['กข-๐.๐','ความฝันอันสูงสุด','คำไทย400','คำ๔๐๐.ไทย','ดอกไม้.ไทย','ดูละคร.ไทย',
+'ที่บ้านฉัน.ไทย','น้ำตาแสงใต้','น้ำท่วมบ้านฉัน.ข่าว','ผลไม้.ไทย','ผัก-ต้นไม้.ไทย',
+'สระ.ไทย','อักษร.ไทย','เพลงช้าง.ไทย,','เมนูไข่','เลข.ไทย','แผ่นดินของเรา' ];
+  var lopt = "";
+  fList.forEach (additem); //for testing
+  function additem(file, i, list) {
+    lopt += '<option value=' + file + '>' + file + '</option>';
+  }
+  document.getElementById("lsdir").innerHTML = lopt;
   document.getElementById('host').style.display='block';
 }
 
