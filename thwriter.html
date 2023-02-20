@@ -123,10 +123,21 @@ function check() {
   let wk = w.replace(/\s/g, "");
   if (wk == "") return;
   n +=1;
-  let nth = "<span style='font-size:12px'>"+ n +".</span>";
+  let nth = "<span style='font-size: 12px'>"+ n +".</span>";
+  if (n > 30) {
+    nth = "<span style='font-size: 16px; color: purple;'>"+ n +".</span>";
+    document.getElementById("div3").style.border="10px dashed purple";
+  } else 
+  if (n > 20) {
+    nth = "<span style='font-size: 16px; color: blue;'>"+ n +".</span>";
+    document.getElementById("div3").style.border="5px dotted red";
+  } else
   if (n > 10) { // splash and sing
-       nth = "<span style='font-size: 16px; color: lime;'>"+ n +".</span>";
+    nth = "<span style='font-size: 14px; color: lime;'>"+ n +".</span>";
+    document.getElementById("div3").style.border="5px dotted orange";
   }
+  
+
   document.getElementById("div3").innerHTML += nth + " <b>" + wk +" </b>";
   // copy word to cast/div1; clear word/div2
   document.getElementById("div1").innerHTML += document.getElementById("div2").innerHTML ;
