@@ -1,0 +1,153 @@
+<!DOCTYPE HTML>
+<html lang = "th-TH">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>โดด ก ข</title>
+<style>
+button {
+  height: 42px;
+  width: 42px;
+  padding: 2px 2px;
+  text-align: center;
+  font-size: 32px; 
+  margin: 2px 2px;
+  cursor: pointer; 
+  border-radius: 25%;  
+}
+#arena {
+  width: 400px;
+  height: 200px;
+  /* try dark mode
+  border: 2px solid black;
+  background-color: #ccccff;
+  */
+  background-color: #00001a;
+  margin: auto;
+}
+#char {
+  width: 30px;
+  height: 60px;
+  font-size: 32px;
+  background-color: transparent;
+  position: relative;
+  top: 160px; /*arena height - char height (200 - 60)*/
+}
+@keyframes jump {
+  0%{top: 140px;}
+  30%{top: 90px;}
+  70%{top: 90px;}
+  100%{top: 140px;}
+}
+.animate {
+   animation: jump 600ms linear;
+}
+#block {
+  width: 80px;
+  height: 60px;
+  font-size: 72px;
+  /*padding-bottom: 40px; */
+  background-color: transparent;
+  position: relative;
+  top: 60px; /* align with char for visual effects */
+  left: 320px; /*game width - block width (400 - 80) */
+  /* for older players use 4s/5s to slow down, 1s/2s is not playable */
+  animation: charge 3s infinite linear;
+  animation-Play-State: 'paused';
+}
+@keyframes charge {
+  from { left: 400px; transform : scale(.6); opacity : 0.3; }
+  50% { transform : scale(0.8); opacity : 0.6; }
+  80% { transform : scale(1.2); opacity : 0.8; }
+  to { left: -30px; transform : scale(1.0); opacity : 1; }
+}
+#block:hover {
+  animation-play-state: paused;
+}
+#msg {
+  font-size: 28px;
+  color: blue;
+}
+</style>
+</head>
+<body>
+<h2>ช่วยด้วย</h2>
+<p>
+<button id="btn" onclick="game()">▶️</button> <span id="msg"></span>
+</p>
+<div id="area">
+  <div id="char">🐥️</div>
+  <div id="block">🚗️</div>
+</div>
+<script src="script/beeper.js" type="text/javascript"></script>
+<script>
+let state = 0;
+let mtxt = "Gameon...";
+let tix = null; //timeout id
+let counter = 10; // to end game
+let char = document.getElementById("char");
+let block = document.getElementById("block");
+let btn = document.getElementById("btn");
+document.addEventListener("click", jump); //click anywhere in window
+
+function jump() {
+  if(char.classList == "animate") { return; }
+  char.classList.add("animate");
+  tix = setTimeout(stand, 600); //jump and land in 600ms
+};
+function stand() {
+  char.classList.remove("animate");
+}
+
+function setbeepfreq() {
+  //set beep freq by the musical notes
+  var notes=[256.87, 272.14, 288.33, 305.47, 323.63, 342.88, 363.27, 384.87, 407.75, 432.00, 457.69, 484.90];
+  return notes[Math.floor(Math.random()*notes.length)];
+}
+
+function game(){
+  if (state==0){
+    block.style.animationPlayState = 'running';
+    btn.innerText = "⏹️"; 
+    state = 1; mtxt = "Game on...";
+    setInterval(isHit, 400); //check every _ms   
+  } else if (state==1) {
+    if (btn.innerText == "▶️"){
+       block.style.animationPlayState = 'running';
+       btn.innerText = "⏹️";
+    } else {
+      block.style.animationPlayState = 'paused';
+      btn.innerText = "▶️";
+      mtxt = "Game paused.";
+    }
+  } else { //state==2 reload 
+    location.reload(); 
+  } 
+}
+
+function isHit() {
+  // get positions of char and block
+  let charTop =
+    parseInt(window.getComputedStyle(char).getPropertyValue("top"));
+  let blockLeft =
+    parseInt(window.getComputedStyle(block).getPropertyValue("left"));
+  //set hit area char w=30,h=60; block w=80, h=80; 5 px h clearance
+  if (blockLeft<30 && blockLeft>-30 && charTop>=95) {
+    counter--;   
+    if (counter > 0) {
+      beep(setbeepfreq(),0,0.5,250); //beep a quarter note
+      mtxt = "โดดได้อีก " + counter + " หน";
+    } else {
+      clearTimeout(tix);
+      block.style.animationPlayState = 'paused';
+      state = 2; mtxt = "Game over!";
+      btn.innerText = "↩️";
+    }  
+  }
+  document.getElementById("msg").innerText = mtxt;
+}
+
+</script>
+
+</body>
+</html>
