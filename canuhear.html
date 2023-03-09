@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<html lang = "th-TH">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ฟัง ก ข</title>
+<style>
+input {
+  height: 20px;
+  scale: 2;
+}
+label {
+  height: 20px;
+  scale: 2;
+}
+button {
+  height: 32px;
+  width: 32px;
+  padding: 2px 2px;
+  text-align: center;
+  margin: 3px 3px;
+  font-size: 28px; 
+  cursor: pointer; 
+  border-radius: 25%;  
+}
+#yard {
+  width: 400px;
+  height: 400px;
+  position: relative;
+  background-color: black;
+}
+
+#cricket {
+  width: 48px;
+  height: 48px;
+  background-color: lime;
+  position: absolute;
+  scale: 0.5;
+  rotate: -60deg;
+}
+</style>
+</head>
+<body>
+<h2>ได้ยินไหม</h2>
+<div>
+ เลือก ... 
+ <input type="checkbox" id="earL"/>
+   <label for="earL">*🎧</label> &nbsp
+ <input type="checkbox" id="earR"/>
+   <label for="earR">🎧*</label> &nbsp
+ <input type="checkbox" id="earB"/>
+   <label for="earB">*🎧*</label>
+..
+<button id="btn" onclick="gentest()">▶️</button> <span id='msg1'>:</span>
+</div>
+<div id="yard">
+  <div id="cricket" style.color="white">👀️</div>
+</div>
+<script src="script/beeper2.js" type="text/javascript"></script>
+<script>
+let tix = null; //timeout id
+function beep(LR){
+  console.log()
+}
+function gentest(){
+  console.log("gentest started");
+  //check which ear and shine the border
+  var tests =[0,0,0];
+  if (earL.checked) { yard.style.borderLeft = "solid #0000FF"; tests[0]=1;} 
+  if (earR.checked) { yard.style.borderRight = "solid #000FFF"; tests[1]=1;}
+  if (earB.checked) { yard.style.borderTop = "solid #00000F"; tests[2]=1;}
+  // divide yard into 2 halves put 2-eye reflection with a beep
+  // set test freq and duration loops say 10x3 (125-double-8000)x(64,125,250)ms 
+  // similate each test with eyes coming closer+larger and beep louder+longer
+  // listener click (anywhere in the yard) to signify he hears it
+  // repeat
+  // C2=64.2175,C3=128.435=2*C2, C4=2*C3, C5=2*C4,...
+  var freq = 64.2175; //hz
+  
+   
+  for (let j=1; j<12; j++) {
+    freq = freq+freq;
+    var dur = 31.25; //ms
+    for (let d=1; d<4; d++) {
+      dur = dur + dur;
+      var vol = 0.00625; //
+      for (let v=1; v<8; v++) {
+        vol = vol + vol;
+        //to repeat this for left/right/both 3 times each with delay of 250ms between them
+        setInterval(isHit, 100); //check every _ms
+        var freqL=freq; var freqR=freq; var volL=vol; var volR=vol; var durL=dur; var durR=dur;
+        tix = setTimeout( 
+          beep2(freqL, freqR, 0, 0, volL, volR, durL, durR), 
+          500); //beep+wait for 500ms
+        console.log("beep f="+ freq + ", v=" + vol + ", dur=" +dur);
+      } 
+    }
+  }
+}
+function isHit(){
+  clearTimeout(tix);
+}
+</script>
+
+</body>
+</html>
