@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ฟัง ก ข</title>
 <style>
+/*
 input {
   height: 20px;
   scale: 2;
@@ -13,92 +14,265 @@ label {
   height: 20px;
   scale: 2;
 }
+*/
 button {
-  height: 32px;
-  width: 32px;
-  padding: 2px 2px;
+  height: 30px;
+  width: 30px;
+  padding: 1px;
   text-align: center;
-  margin: 3px 3px;
-  font-size: 28px; 
+  font-size: 24px; 
   cursor: pointer; 
-  border-radius: 25%;  
+  border: none;  
 }
 #yard {
   width: 400px;
   height: 400px;
+  margin: 20px;
   position: relative;
   background-color: black;
 }
 
 #cricket {
-  width: 48px;
-  height: 48px;
-  background-color: lime;
+  width: 30px;
+  height: 20px;
+  color: lime;
   position: absolute;
   scale: 0.5;
   rotate: -60deg;
 }
+/* divide yard into 2 halves put 2-eye reflection with a beep
+   set test freq and duration loops say 10x3 (125-double-8000)x(64,125,250)ms 
+   similate each test with eyes coming closer+larger and beep louder+longer
+   listener click (anywhere in the yard) to signify hearing it
+*/
 </style>
 </head>
 <body>
 <h2>ได้ยินไหม</h2>
 <div>
- เลือก ... 
+ &nbsp&nbsp เลือก... 
  <input type="checkbox" id="earL"/>
    <label for="earL">*🎧</label> &nbsp
  <input type="checkbox" id="earR"/>
    <label for="earR">🎧*</label> &nbsp
  <input type="checkbox" id="earB"/>
    <label for="earB">*🎧*</label>
-..
-<button id="btn" onclick="gentest()">▶️</button> <span id='msg1'>:</span>
+...
+<button id="bset" onclick="show()">⚙️</button> 
+&nbsp&nbsp
+<button id="btn" onclick="runTest()">▶️</button> <br>
+<span id="msg1"'>:</span>
 </div>
+
 <div id="yard">
-  <div id="cricket" style.color="white">👀️</div>
+  <div id="cricket" style.color="yellow">👀️</div>
+</div>
+<br>
+
+<div id="settings">
+<h2>Adjustments</h2>
+  volume
+  <input type="number" id="vIn" min="0" max="1" value=0.000125 oninput="show()" />
+  <span id="vOut"></span><br>
+  duration
+  <input type="range" id="dIn" min="1" max="1000" value=125 oninput="show()" />
+  <span id="dOut"></span><br>
+  frequency
+  <input type="range" id="fIn" min="32" max="8750" value=32.1085 oninput="show()" />
+  <span id="fOut"></span><br>
+  waveform
+  <input type="range" id="tIn" min="0" max="3" value=0 oninput="show()" />
+  <span id="tOut"></span><br>  
 </div>
 <script src="script/beeper2.js" type="text/javascript"></script>
 <script>
-let tix = null; //timeout id
-function beep(LR){
-  console.log()
-}
-function gentest(){
-  console.log("gentest started");
-  //check which ear and shine the border
-  var tests =[0,0,0];
-  if (earL.checked) { yard.style.borderLeft = "solid #0000FF"; tests[0]=1;} 
-  if (earR.checked) { yard.style.borderRight = "solid #000FFF"; tests[1]=1;}
-  if (earB.checked) { yard.style.borderTop = "solid #00000F"; tests[2]=1;}
-  // divide yard into 2 halves put 2-eye reflection with a beep
-  // set test freq and duration loops say 10x3 (125-double-8000)x(64,125,250)ms 
-  // similate each test with eyes coming closer+larger and beep louder+longer
-  // listener click (anywhere in the yard) to signify he hears it
-  // repeat
-  // C2=64.2175,C3=128.435=2*C2, C4=2*C3, C5=2*C4,...
-  var freq = 64.2175; //hz
-  
-   
-  for (let j=1; j<12; j++) {
-    freq = freq+freq;
-    var dur = 31.25; //ms
-    for (let d=1; d<4; d++) {
-      dur = dur + dur;
-      var vol = 0.00625; //
-      for (let v=1; v<8; v++) {
-        vol = vol + vol;
-        //to repeat this for left/right/both 3 times each with delay of 250ms between them
-        setInterval(isHit, 100); //check every _ms
-        var freqL=freq; var freqR=freq; var volL=vol; var volR=vol; var durL=dur; var durR=dur;
-        tix = setTimeout( 
-          beep2(freqL, freqR, 0, 0, volL, volR, durL, durR), 
-          500); //beep+wait for 500ms
-        console.log("beep f="+ freq + ", v=" + vol + ", dur=" +dur);
-      } 
-    }
+//check which ear and shine the border
+var tests = [earL.checked, earR.checked, earB.checked]; //in array for looping
+var side = "B";
+function beepL(){ beep2(frequency,type,volume,duration, 0,0,0,0); }
+function beepR(){ beep2(0,0,0,0, frequency,type,volume,duration); }
+
+const yard = document.getElementById("yard");
+const settings = document.getElementById("settings");
+var count=0;
+var loop=0;
+var clicked=false;
+var canclick=false;
+
+function setClick(){
+  if (!canclick){
+    yard.addEventListener("click", score); 
+    canclick=true;
+    console.log("set click on");
   }
 }
-function isHit(){
-  clearTimeout(tix);
+function removeClick(){
+  if (canclick){
+    yard.removeEventListener("click", score); 
+    canclick=false;
+    console.log("remove click");
+  }
+}
+
+var results=[];
+var seton=false;
+function show(){
+ //check which ear
+  if (earL.checked) { yard.style.borderLeft = "5px dotted yellow"; } 
+  else {yard.style.borderLeft = null; }
+  if (earR.checked) { yard.style.borderRight = "5px dotted yellow"; }
+  else {yard.style.borderRight = null; } 
+  if (earB.checked) { yard.style.borderTop = "5px dashed yellow"; }
+  else {yard.style.borderTop = null; }
+/*
+  if (!seton){
+    seton=true;
+    settings.style.display="block";
+    //bset.style.background-color = "grey";
+  } else {
+    seton=false;
+    settings.style.display="none";
+  }
+*/
+  volume = document.getElementById("vIn").value;
+  document.getElementById("vOut").innerHTML=volume;
+
+  duration = document.getElementById("dIn").value;
+  document.getElementById("dOut").innerHTML=duration + ' ms';
+  frequency = document.getElementById("fIn").value;
+  document.getElementById("fOut").innerHTML=frequency + ' Hz';
+
+  switch(document.getElementById("tIn").value * 1){
+    case 0: type='sine'; break; 
+    case 1: type='square'; break;
+    case 2: type='sawtooth'; break;
+    case 3: type='triangle'; break;
+  }    
+  document.getElementById("tOut").innerHTML=type;
+}
+
+function runTest() {
+  if (seton) {
+    singleTest();
+  } else {
+    genTest();
+  }
+}
+
+function singleTest(){
+  side="B";
+  setClick();
+  if (canclick) {
+Li: for (let i=0; i<3 && canclick; i++) {
+      if (canclick) { 
+        setTimeout(genBeeps(i), 1000*i +10);
+        if (!canclick) i=3; //instead of break Li;
+      } // delay the loop to allow bypass by a click
+        console.log("i="+i+" canclick="+canclick);
+    }
+    setTimeout(removeClick,1000); //disallow click after 1s
+  }
+}
+//Idea: to animate a pair of eyes in the dark while looping over 3 types of tests
+// each test consists of a range of frequencies (100->8750), and 
+// each each frequency generate a set of beeps for a range of volumes (0.0001->0.5)
+// play each set of beeps and listen for a click anywhere on the yard
+// on a click collect the data in an array [l|r|b,f,w,v,d] and add to the result list
+//   bypass other volume increment, move on the the next freq --no skipping
+// when frequency loop finishes, report result (with suggestion?)
+function genTest() {
+  console.log("gentest...");
+  //setup a test for each checkbox
+  var eti=0; //track elapsed time
+  var nbs=0; //track number of beeps
+  var nhit=0; //track number of clicks = sound heard
+Lt:
+  for (let t=0; t<3; t++) {
+    //console.log("gentest/tests...");
+    if (t==0) {side="L";}
+    else if (t==1) {side="R";}
+    else if (t==2) {side="B";}     
+    //frequencies: C2=64.2175,C3=128.435=2*C2, C4=2*C3, C5=2*C4,...
+    frequency = 32.1085; //hz
+    type = 0; //use sine wave for now **todo
+Lf: for (let f=1; f<9; f++) {
+      //console.log("gentest/tests/freq...");
+      frequency += frequency;
+      duration = 31.25; //ms
+Ld:   for (let d=1; d<4; d++) {
+        //console.log("gentest/tests/freqs/dur...");
+        duration += duration;
+        volume = 0.000125; //reference volume
+Lv:     for (let v=1; v<10; v++) {
+          volume += volume;
+          
+          eti += 3*duration; //expected min timeout from now 
+          nbs += 3; //each beeping task has 3 beeps 
+    
+          console.log("genBeeps("+side+', '
+            +frequency+', '+type+', '+volume+', '+duration+')'); 
+          //             +' eti='+ eti/1000 + ', nbs='+ nbs);
+          //use break to bypass this volume loop??
+
+          setClick(); //add click listener to the yard
+          if (canclick) {
+Li:         for (let i=0; i<3 && canclick; i++) {
+              if (canclick) { 
+                setTimeout(genBeeps(i), 1000*i +10); //timeout?
+                if (!canclick) break Lf; //next frequency
+              } // delay the loop to allow bypass by a click
+              console.log("i="+i+" canclick="+canclick);
+            } 
+          }
+          setTimeout(removeClick,1000); //disallow click after 1s
+                                        //this means fail to hear 
+        } 
+      }
+    }
+  }
+} //a pyramid of hell!
+
+//function genBeeps(side, frequency, type, volume, duration) {
+function genBeeps(i) {
+// emit the specified beep and wait 250ms for response, 3 times
+// return the count of responses (0--3)
+  count++;
+  console.log("genBeeps...")
+  audioCtx.resume();
+/*
+  const yn = (resolve, reject) => { 
+    if (canclick) { resolve(canclick);} 
+    else { reject(canclick); }     
+    }
+*/
+  const yn = (resolve, reject) => {
+   let x=1; if (x){resolve(x);} else {reject(x);}
+  }
+  const prom = new Promise(yn);
+  prom.then( ()=>{setTimeout( emit, i*1000+10);}); 
+  prom.then( ()=>{setTimeout( emit, i*1000+350);});
+  prom.then( ()=>{setTimeout( emit, i*1000+750);});
+  prom.catch( ()=>{console.log("something is wrong.");});  
+}
+
+function emit(side) {
+  console.log('emit('+ frequency+' '+type+' '+volume+' '+duration +')')
+  setTimeout( () => { 
+    switch(side){
+      case "L": beep2(frequency,type,volume,duration, 0,0,0,0); break;
+      case "R": beep2(0,0,0,0, frequency,type,volume,duration); break;
+      case "B": beep2(frequency,type,volume,duration,frequency,type,volume,duration); break;
+    }
+  }, 10);   
+}
+
+function score(){
+  //clicked when first hear something
+  // plot a white symbol
+  removeClick();
+
+  count++;
+  console.log("click:"+ count +' loops '+ loop);
 }
 </script>
 
