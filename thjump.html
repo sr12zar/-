@@ -40,7 +40,11 @@ button {
   100%{top: 140px;}
 }
 .animate {
-   animation: jump 600ms linear;
+  -webkit-animation: jump 600ms linear;
+  -moz-animation: jump 600ms linear;
+  -o-animation: jump 600ms linear;
+  -ms-animation: jump 600ms linear;
+  animation: jump 600ms linear; 
 }
 #block {
   width: 80px;
@@ -52,6 +56,10 @@ button {
   top: 60px; /* align with char for visual effects */
   left: 320px; /*game width - block width (400 - 80) */
   /* for older players use 4s/5s to slow down, 1s/2s is not playable */
+  -webkit-animation: charge 3s infinite linear;
+  -moz-animation: charge 3s infinite linear;
+  -o-animation: charge 3s infinite linear;
+  -ms-animation: charge 3s infinite linear;
   animation: charge 3s infinite linear;
   animation-Play-State: 'paused';
 }

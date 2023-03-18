@@ -9,22 +9,49 @@ button {
   width: 40px;
   height: 40px;
 }
-#container {
+#wall {
   width: 300px;
   height: 300px;
   position: relative;
   background: black;
   margin: 20px;
 }
-#animate {
+/*
+@keyframes bgc {
+    0% {background-color: green;}
+   50% {background-color: lime;}
+  100% {background-color: white;}
+}
+*/
+#spot {
   width: 5px;
   height: 5px;
-  border: 1px dotted yellow;
+  border: 1px dotted white;
   border-radius: 50%;
   position: absolute;
   background-color: lime;
+/*
+  -webkit-animation-name: bgc;
+  -moz-animation-name: bgc;
+  -ms-animation-name: bgc;
+  animation-name: bgc;
+  animation-delay: 0.01s;
+  -webkit-animation-duration: 3s;
+  -moz-animation-duration: 3s;
+  -ms-animation-duration: 3s;
+  animation-duration:  3s;
+*/
 }
-
+/*
+#report {
+  width: 300px;
+  height: 300px;
+  border: none;
+  margin-left: 20px;
+  position: fixed;
+  background-color: transparent;
+}
+*/
 </style>
 <body>
 <h2>ได้ยินไหม</h2>
@@ -35,13 +62,12 @@ button {
  <input type="checkbox" id="earR"/>
    <label for="earR">🎧*</label> &nbsp
  <input type="checkbox" id="earB"/>
-   <label for="earB">*🎧*</label> &nbsp &nbsp 
+   <label for="earB">*🎧*</label> &nbsp &nbsp
  <input type="checkbox" id="setparms"/>
    <label for="setparms">⚙️</label>
 </div>
 <div id="settings">
 <h2>ปรับเสียง</h2>
-  <br>
   ความถี่
   <input type="range" id="fIn" min="128" value="432" max="8219" oninput="show()" />
   <span id="fOut"></span><br>
@@ -55,18 +81,22 @@ button {
   <input type="range" id="dIn" min="1" value= "125" max="1000" oninput="show()" />
   <span id="dOut"></span><br>
 </div>
-<button onclick="binTest()">▶️</button>&nbsp&nbsp<span id='msg1'>:</span>
-<div id ="container">
-  <div id ="animate"></div>
+<button onclick="mkTest()">▶️</button>&nbsp&nbsp<span id='msg1'>: ใส่หูฟังหรือยัง?</span>
+<div id="wall">
+  <div id="spot"></div>
 </div>
+<div id="report" style="display:none"></div>
 
 <script src="script/beeper2.js" type="text/javascript"></script>
 <script>
 let nTests=0; //count number of tests
+const onear=["*🎧","🎧*","*🎧*"]; //for report
+setparms.checked=true; 
 show();
 
 function show(){
-  const setp = document.getElementById("settings");
+  if (setparms.checked) { settings.style.display='block';}
+  else { settings.style.display='none';}
 
   frequency = document.getElementById("fIn").value;
   document.getElementById("fOut").innerHTML=frequency + ' Hz';
@@ -89,21 +119,24 @@ function show(){
 loops=0; //count number of iteration in loops
 clicked=false;
 canclick=false;
-const con = document.getElementById("container");
-const ball = document.getElementById("animate");
+const settingd = document.getElementById("settings");
+const wall = document.getElementById("wall");
+const spot = document.getElementById("spot");
+const msg1 = document.getElementById("msg1");
+//const report = document.getElementById("report"); //**todo
 
 function setClick(){
   if (!canclick){
-    con.addEventListener("click", score); 
+    wall.addEventListener("click", score); 
     canclick=true;
-    console.log("set click on");
+    console.log("set click on "+Date.now());
   }
 }
 function removeClick(){
   if (canclick){
-    con.removeEventListener("click", score); 
+    wall.removeEventListener("click", score); 
     canclick=false;
-    console.log("remove click");
+    console.log("remove click "+Date.now());
   }
 }
 
@@ -111,10 +144,10 @@ function beepL(){ beep2(frequency,0,volume,duration, 0,0,0,0); }
 function beepR(){ beep2(0,0,0,0, frequency,0,volume,duration); }
 function beepB(){ beep2(frequency,0,volume,duration, frequency,0,volume,duration); }
 function beepX(){
-  console.log("beeping..f="+frequency+' v='+volume+' d='+duration);
   if (earL.checked) { beepL(); } 
   else if (earR.checked) { beepR(); }
   else if (earB.checked) { beepB(); }
+  //console.log("beeping..f="+frequency+' v='+volume+' d='+duration);
 }
 
 //Hearing freq C3      C4      C5      c6       C7       C8       C9
@@ -158,9 +191,14 @@ function findex(f, far){
 }
 
 function mkTest() {
+  if (!(earL.checked||earR.checked||earR.checked)) earB.checked = true;
+  if (earL.checked) { ear=0;wall.style.borderLeft = "solid #0000FF";} 
+  if (earR.checked) { ear=1;wall.style.borderRight = "solid #000FFF";}
+  if (earB.checked) { ear=2;wall.style.borderTop = "solid #00000F";}
   var rnd = 100+Math.floor(Math.random()*200); 
   let top = 0; 
   let left= 45+30*findex(frequency, Freqs); //skip col 1,
+  spot.style.left = left + "px"; //set column
   let tid = setInterval(frame, 20); //every 10ms is fast
   function frame() {
     if (top > rnd && top <10+rnd) {
@@ -169,22 +207,21 @@ function mkTest() {
       if (canclick) {
         setTimeout(genbeeps(), 10); //delay by 10ms
         if (!canclick) {
-           console.log("loops "+loops+" canclick="+canclick);
-           return; //return;
+           //console.log("loops "+loops+" canclick="+canclick);
+           return; //do nothing
         }        
-        //setTimeout(removeClick,1000); //disallow click after 1s
       }
     } else {
-      top++;
-      if (top > 290) return;
-      ball.style.top = top + "px"; 
-      ball.style.left = left + "px";
+      top++; //move the spot
+      if (top > 295) return;
+      spot.style.top = top + "px";      
     }
   }
 }
 
 function genbeeps(){
 //make 3 consecutive beeps then timeout accepting clicks
+  msg1.innerText="";
   loops++;
   audioCtx.resume();
   const yn = (resolve, reject) => { 
@@ -192,8 +229,8 @@ function genbeeps(){
     else { reject('wait'); }     
     }
   const prom = new Promise(yn);
-  prom.then( ()=>{setTimeout( beepX, 25);}); //wait 50ms before beep
-  //prom.then( ()=>{setTimeout( beepX, 50+duration);}); //wait 100ms +duration
+  prom.then( ()=>{setTimeout( beepX, 25);}); //wait 25ms before beep
+  //prom.then( ()=>{setTimeout( beepX, 50+duration);}); //wait 50ms +duration
   //prom.then( ()=>{setTimeout( beepX, 75+2*duration);}); 
   prom.then( ()=>{setTimeout( removeClick, 1000);}); //disallow click after 1000ms
   prom.catch( ()=>{console.log("something is wrong.");}); 
@@ -201,11 +238,14 @@ function genbeeps(){
 
 function score(){
   //click when first hear something
-  //plot a white symbol? then
+  //** todo plot a white symbol? and avg?
+ 
   clicked=true;
   removeClick();
   nTests++;
-  console.log("click out :"+ nTests +' loops '+ loops);
+  var result = onear[ear]+" "+frequency+"hz นาน "+duration+"ms ดัง "+volume;
+  msg1.innerText = result;
+  //report.innertext += result +"\n"; //**todo in table and calc avg
 }
 </script>
 

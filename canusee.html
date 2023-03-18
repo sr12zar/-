@@ -8,8 +8,8 @@
 button {
   height: 40px;
   width: 40px;
-  font-size: 36px; 
-  margin: 5px 5px;
+  font-size: 34px; 
+  margin: 2px 2px;
   cursor: pointer; 
   border-radius: 25%;  
 }
@@ -19,11 +19,10 @@ button {
    25% {background-color: #f2f2f2;}
    50% {background-color: #e6e6e6;}
   100% {background-color: #d9d9d9;}
-  
 }
-#chart{
-  width: 400px;
-  height: 400px;
+#board{
+  width: 360px;
+  height: 360px;
   padding: 10px;
   position: relative;
 /*  background: white; 
@@ -31,10 +30,10 @@ button {
   animation-duration: 20s;
 */
 }
-
+// choose z-index by the width/height of board in px
 @keyframes grow {
   from { transform: scale(1); opacity: 1.0; z-index: 0;}
-    to { transform: scale(100); opacity: 0.1; z-index: 400;}
+    to { transform: scale(100); opacity: 0.1; z-index: 360;}
 }
 #opt {
   width: 1%;
@@ -50,10 +49,10 @@ button {
   -ms-animation-name: grow;
   animation-name: grow;
   animation-delay: 0.1s;
-  -webkit-animation-duration: 20s;
-  -moz-animation-duration: 20s;
-  -ms-animation-duration: 20s;
-  animation-duration:  20s;
+  -webkit-animation-duration: 10s;
+  -moz-animation-duration: 10s;
+  -ms-animation-duration: 10s;
+  animation-duration:  10s;
   animation-timing-function: cubic-bezier(0.95,0.2,0.95,0.4);
   animation-iteration-count: 1;
 }
@@ -73,22 +72,22 @@ input {
 <body>
 <h2>เหมือนตัวไหนเอ่ย?</h2> 
 <div>
-เลือก.. 
+&nbsp&nbsp เลือก : 
  <input type="checkbox" id="eyeL"/>
    <label for="eyeL">👁️🤚️</label> &nbsp
  <input type="checkbox" id="eyeR"/>
    <label for="eyeR">🤚️👁️</label> &nbsp
  <input type="checkbox" id="eyeB"/>
    <label for="eyeB">👁️👁️</label>
-..
+&nbsp
 <button id="btn" onclick="start()">▶️</button> 
 </div> 
-<div id="chart">
+<div id="board">
   <div>
     <img id='opt' src='image/Landolt-96.jpg'>
   </div>
 </div>
-<p>
+<p>&nbsp&nbsp&nbsp
 <button id="b0" class="ans">
   <img src="image/Landolt-96.jpg" width=32 height=32></button> 
 <button id="b1" class="ans">
@@ -97,7 +96,7 @@ input {
   <img src="image/Landolt-96.jpg" width=32 height=32></button> 
 <button id="b3" class="ans"">
   <img src="image/Landolt-96.jpg" width=32 height=32></button> 
-&nbsp
+&nbsp&nbsp&nbsp
 <button id="b4" onclick="help()" width=32 height=32>❓️</button> 
 </p>
 <p id="msg">กดปุ่มที่เหมือนกับรูปที่เห็นข้างบน</p>
@@ -124,8 +123,8 @@ var eyecon = ['🤚️👁️:',' 👁️🤚️:','👁️👁️:'];
 var results=[]; //array of result = "eye opt optsize"
 
 function freeze() {
-  //using z-index/400 as approx opticon size; small is good, 0.3+ needs 'real' tests 
-  optsize = parseInt(window.getComputedStyle(opt).getPropertyValue('z-index')) / 400;
+  //using z-index/360 as approx opticon size; small is good, 0.3+ needs 'real' tests 
+  optsize = parseInt(window.getComputedStyle(opt).getPropertyValue('z-index'))/360;
   if (opt.style.animationPlayState == 'paused') {    
     //console.log("test running "+ optsize);
     opt.style.animationPlayState = 'running';    
@@ -138,9 +137,9 @@ function freeze() {
 function start(){
   //check eye to test; if not selected assume eyeB
   if (!(eyeL.checked||eyeR.checked||eyeR.checked)) eyeB.checked = true;
-  if (eyeL.checked) { eye=0;chart.style.borderLeft = "solid #0000FF";} 
-  if (eyeR.checked) { eye=1;chart.style.borderRight = "solid #000FFF";}
-  if (eyeB.checked) { eye=2;chart.style.borderTop = "solid #00000F";}
+  if (eyeL.checked) { eye=0;board.style.borderLeft = "solid #0000FF";} 
+  if (eyeR.checked) { eye=1;board.style.borderRight = "solid #000FFF";}
+  if (eyeB.checked) { eye=2;board.style.borderTop = "solid #00000F";}
   newTest();
   var optx = rnd[optn]; //randomly select nth pattern
   //console.log("rotate="+ optx + " ="+ndegs[optx]);
@@ -162,9 +161,9 @@ function ping(x){
   beep(freq, 0, 0.1, dur);
 }
 
-//add a click listener to chart to freeze animation
-var chart = document.getElementById("chart");
-chart.addEventListener("click", freeze); //click anywhere in chart
+//add a click listener to board to freeze animation
+var board = document.getElementById("board");
+board.addEventListener("click", freeze); //click anywhere in board
 
 // add a click listener to answer buttons
 var ans = document.getElementsByClassName("ans");
