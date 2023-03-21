@@ -179,7 +179,7 @@ var whichbtn = e => {
   }
   if (answer==OKbtn) {
     ping(1);
-    var result = eyecon[eye]+" "+OKbtn+" "+optsize;
+    var result = eyecon[eye]+" "+OKbtn+" "+optsize.toFixed(3);
     results.push(result);
     //console.log(results);
     opt.style.display="none"; //
