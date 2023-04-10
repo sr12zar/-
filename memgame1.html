@@ -6,12 +6,12 @@
   <title>หาคู่ ก ข</title>
 <style>
 .card {
-  height: 80px;
-  width: 80px;
+  height: 75px;
+  width: 75px;
   border: 2px solid white;
   padding: 2px 2px;
   text-align: center;
-  font-size: 70px; 
+  font-size: 64px; 
   color: yellow;
   margin: 2px 2px;
   display: inline-block;
@@ -39,21 +39,21 @@
 }
 
 #board {
-  width: 370px;
-  height: 370px;
+  width: 360px;
+  height: 360px;
   background-color: #00001a;
   margin: auto;
 }
 
 button {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   padding: 1px 1px;
   margin: 1px 1px;
   font-size: 28px;
 }
 #msg {
-  font-size: 28px;
+  font-size: 24px;
   color: blue;
 }
 </style>
@@ -61,14 +61,14 @@ button {
 <body>
 <h2>หาคู่</h2>
 <p>
- <label for="game">เลือก..</label>
+ <label for="game"><b>เลือก..</b</label>
  <select name="game" id="xmode">
-   <option value="emo">😊️</option>
-   <option value="กขค">กข</option>
-   <option value="abc">ABC</option>
+   <option value="emo">.👁️.</option>
+   <option value="กขค">กข.</option>
+   <option value="abc">aBC</option>
  </select> 
  <button id="btn" onclick="deal()">▶️</button> 
- <span id="msg"><-- กดปุ่ม เริ่มเล่น</span>
+ <span id="msg"><-กดปุ่ม เริ่มเล่น</span>
 </p>
 <div id="board">
 </div>
@@ -86,8 +86,7 @@ const btn = document.getElementById("btn");
 const msg = document.getElementById("msg");
 const xgame = document.getElementById("xmode").value;
 console.log("Game selected "+xgame);
-const emojis=['🚗️','😀️','🐥️','🙏️','🦓️','🐓️','🦖️','🐞️','🐑️','🪑️','🥬️','🦺️','🦘️',
-   '⚖️','🐧️','🦆️','🕒️','🚲️','🏋‍♂️️','🚣‍♀️️','👁️','☂️','🦮️','🐒️','🍏️','☢️','🥕️','🥑️'];
+const Emos=['🚗️','😀️','🐥️','🙏️','🦓️','🐓️','🦖️','🐞️','🐑️','🪑️','🥬️','🦺️','🦘️','🌶️','🐎️','⚖️','🐧️','🦆️🕒️','🚲️','🏋‍♂️️','🚣‍♀️️','👁️','☂️','🦮️','🐒️','🍏️','☢️','🥕️','🥑️','🙉️','👩‍🦽️','🌏️'];
 const Tha="กจฎฏดตบปอคฅฆงชซฌญฑฒณทธนพฟภมยรลวฬฮขฃฉฐถผฝศษสห";
 const Lat="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -109,9 +108,9 @@ function deal(){
   }
   var faces; // work array
   switch (xgame) {
-    case "emo": faces = emojis; break;  
-    case "กขค" : faces = Tha.split(''); break; 
-    case "abc"  : faces = Lat.split(''); break; 
+    case "emo": faces = Emos; break;  
+    case "กขค" : faces = Array.from(Tha); break; 
+    case "abc"  : faces = Array.from(Lat); break; 
   }
   var temp = faces.sort(function(){return 0.5 - Math.random()});
   var t8 = temp.slice(0,8);
