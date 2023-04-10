@@ -1,0 +1,213 @@
+<!DOCTYPE HTML>
+<html lang = "th-TH">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หาคู่ ก ข</title>
+<style>
+.card {
+  height: 80px;
+  width: 80px;
+  border: 2px solid white;
+  padding: 2px 2px;
+  text-align: center;
+  font-size: 70px; 
+  color: yellow;
+  margin: 2px 2px;
+  display: inline-block;
+  cursor: pointer;
+  opacity: 0.7;
+  border-radius: 25%;  
+}
+.card:hover {
+  animation: shake 0.5s;
+   animation-iteration-count: 2; 
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+#board {
+  width: 370px;
+  height: 370px;
+  background-color: #00001a;
+  margin: auto;
+}
+
+button {
+  width: 32px;
+  height: 32px;
+  padding: 1px 1px;
+  margin: 1px 1px;
+  font-size: 28px;
+}
+#msg {
+  font-size: 28px;
+  color: blue;
+}
+</style>
+</head>
+<body>
+<h2>หาคู่</h2>
+<p>
+ <label for="game">เลือก..</label>
+ <select name="game" id="xmode">
+   <option value="emo">😊️</option>
+   <option value="กขค">กข</option>
+   <option value="abc">ABC</option>
+ </select> 
+ <button id="btn" onclick="deal()">▶️</button> 
+ <span id="msg"><-- กดปุ่ม เริ่มเล่น</span>
+</p>
+<div id="board">
+</div>
+<script src="script/beeper2.js" type="text/javascript"></script>
+<script>
+let reload = 0; // for reloading
+let toid = null; // timeout id
+let npairs = 0; // pairs discovered to end game
+var opened = null; // card object opened
+var cards = []; // save card objects
+var quiz = [];  // save card faces
+var oix = null, cix = null; //positions in cards arrays
+const board = document.getElementById('board');
+const btn = document.getElementById("btn");
+const msg = document.getElementById("msg");
+const xgame = document.getElementById("xmode").value;
+console.log("Game selected "+xgame);
+const emojis=['🚗️','😀️','🐥️','🙏️','🦓️','🐓️','🦖️','🐞️','🐑️','🪑️','🥬️','🦺️','🦘️',
+   '⚖️','🐧️','🦆️','🕒️','🚲️','🏋‍♂️️','🚣‍♀️️','👁️','☂️','🦮️','🐒️','🍏️','☢️','🥕️','🥑️'];
+const Tha="กจฎฏดตบปอคฅฆงชซฌญฑฒณทธนพฟภมยรลวฬฮขฃฉฐถผฝศษสห";
+const Lat="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+function shuffle(array) {
+  for (var i = array.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+  return array;
+}
+
+function deal(){
+  if (reload==0) {reload=1;} 
+  else {
+    location.reload(); 
+    msg,innerText="OK, เล่นอีก?";
+  }
+  var faces; // work array
+  switch (xgame) {
+    case "emo": faces = emojis; break;  
+    case "กขค" : faces = Tha.split(''); break; 
+    case "abc"  : faces = Lat.split(''); break; 
+  }
+  var temp = faces.sort(function(){return 0.5 - Math.random()});
+  var t8 = temp.slice(0,8);
+  //console.log("selected "+ t8);
+  quiz = shuffle([...t8, ...t8]); // double and shuffle --> the quiz
+  console.log("After doubled & shuffled "+ quiz);
+
+  for(var i=0;i<4;i++){ //row
+    for(var j=0;j<4;j++){ //column
+      var card = document.createElement('div'); //create a card
+      card.className = 'card';
+      var t = 4*i+j;
+      card.innerText = "🔳️"; //thc[t]; // cover the face value
+
+      card.addEventListener("click", function (e) { hideshow(this); });
+      //card.style.opacity = 0.7;
+      
+      board.appendChild(card); // add to board
+      cards[t] = card; // save card object  
+    }
+  }
+}
+
+function hideshow(e){
+  cix = cards.indexOf(e); // card position in cards
+  e.innerText = quiz[cix];
+  console.log("this card is " +quiz[cix]);
+
+  if (opened==null){
+    //console.log("No other card opened ");
+    opened = e; // save it and its index
+    oix = cix;
+    e.innerText = quiz[oix]; // show its face
+    e.style.opacity==1.0;   
+  } else {
+    //console.log(" card " +quiz[cix]+ " is opened");
+    if (e==opened){ //already opened --> toggle close it
+      e.innerText = "🔳️"; // cover its face
+      e.style.opacity==0.7; // take off spotlight
+      opened=null; oix = null; // reset oix too?
+      //console.log(" click on opened card -- close it");
+    } else if (quiz[oix]==quiz[cix]) { // a match
+      //console.log("a match --remove both cards from board");
+      clearTimeout(toid);
+      toid = setTimeout(function () {
+        ping(1); // acknowledge a match
+        e.innerText="✅️"; 
+        opened.innerText="✅️"; // tick out
+        //e.classList.remove("shake"); // shake belongs to class
+        //opened.classList.remove("shake");
+        opened=null; 
+        oix = null;
+        msg.innerText = "Yes!";
+        }, 1000);
+      
+      npairs++;
+      if (npairs>=8){
+        ping(2); // say "end game"
+        msg.innerText = "ไชโย - ทำได้แล้ว";
+        console.log("end game -- big splash and ,,,");
+      }
+    } else {
+      console.log("mismatch "+oix+" ? "+cix+ " close both cards");
+      clearTimeout(toid);
+      toid = setTimeout(function () {
+        ping(0);
+        e.innerText = "🔳️"; //close the card
+        cards[oix].innerText = "🔳️";
+        opened=null; 
+        oix = null;
+        msg.innerText = "..no?";
+      }, 1000);
+    }
+  }
+}
+
+function ping(yn) {
+  //set beep freq by the musical notes
+  var notes=[256.87, 272.14, 288.33, 305.47, 323.63, 342.88, 363.27, 384.87, 407.75, 432.00, 457.69, 484.90];
+  var N=notes[Math.floor(Math.random()*notes.length)];
+  if (yn==1) { beep2(notes[9],0,0.4,250, 0,0,0,0); }
+  else if (yn==0) { beep2(0,0,0,0, notes[3],0,0.3,125); }
+  else {
+    //end game play a few notes
+    beep2(432.0,0,0.4,250, 432.0,0,0.4,250);
+    clearTimeout(toid);
+    toid = setTimeout(function () {
+      beep2(342.88,0,0.4,250, 363.27,0,0.4,250);
+      }, 250);
+    clearTimeout(toid);
+    toid = setTimeout(function () {
+      beep2(305,0,0.4,250, 288.33,0,0.4,250);
+      }, 250);
+  }
+}
+</script>
+
+</body>
+</html>
