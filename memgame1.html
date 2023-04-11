@@ -5,13 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>หาคู่ ก ข</title>
 <style>
+label, #xmode {
+  font-size: 20px;
+}
+button {
+  width: 30px;
+  height: 30px;
+  padding: 1px 1px;
+  margin: 1px 1px;
+  font-size: 28px;
+}
+#msg {
+  font-size: 24px;
+  color: blue;
+}
+
 .card {
   height: 75px;
   width: 75px;
   border: 2px solid white;
   padding: 2px 2px;
   text-align: center;
-  font-size: 64px; 
+  font-size: 60px; 
   color: yellow;
   margin: 2px 2px;
   display: inline-block;
@@ -46,17 +61,6 @@
   margin: auto;
 }
 
-button {
-  width: 30px;
-  height: 30px;
-  padding: 1px 1px;
-  margin: 1px 1px;
-  font-size: 28px;
-}
-#msg {
-  font-size: 24px;
-  color: blue;
-}
 </style>
 </head>
 <body>
@@ -69,7 +73,7 @@ button {
    <option value="abc">aBC</option>
  </select> 
  <button id="btn" onclick="deal()">▶️</button> 
- <span id="msg"><-กดปุ่ม เริ่มเล่น</span>
+ <span id="msg"><-กดปุ่ม เล่น</span>
 </p>
 <div id="board">
 </div>
@@ -88,7 +92,8 @@ const msg = document.getElementById("msg");
 const xgame = document.getElementById("xmode").value;
 console.log("Game selected "+xgame);
 const masks = ['🔳️','🌀️','🚭️','🔘️','🎛️'];
-var mask = ""; // cover icon
+var mask = ""; // cover icon to be set each play
+var tick = "✅️";
 const Emos=['🚗️','😀️','🐥️','🙏️','🦓️','🐓️','🦖️','🐞️','🐑️','🪑️','🥬️','🦺️','🦘️','🌶️','🐎️','⚖️',
 '🐧️','🦆️','🕒️','🚲️','🏋‍♂️️','🚣‍♀️️','👁️','☂️','🦮️','🐒️','🍏️','☢️','🥕️','🥑️','🙉️','👩‍🦽️','🌏️'];
 const Tha='กจฎฏดตบปอคฅฆงชซฌญฑฒณทธนพฟภมยรลวฬฮขฃฉฐถผฝศษสห';
@@ -103,12 +108,13 @@ function shuffle(array) {
   }
   return array;
 }
+var _anonfn = function (e) { hideshow(this); };
 
 function deal(){
   if (reload==0) {reload=1;} 
   else {
     location.reload(); 
-    msg,innerText="OK, เล่นอีก?";
+    msg.innerText="OK, เล่นอีก?";
   }
   
   mask = shuffle(masks)[0]; // choose a cover
@@ -130,10 +136,8 @@ function deal(){
       card.className = 'card';
       var t = 4*i+j;
       card.innerText = mask; //thc[t]; // cover the face value
-
-      card.addEventListener("click", function (e) { hideshow(this); });
-      //card.style.opacity = 0.7;
-      
+      //card.addEventListener("click", function (e) { hideshow(this); });
+      card.addEventListener("click", _anonfn);
       board.appendChild(card); // add to board
       cards[t] = card; // save card object  
     }
@@ -143,7 +147,7 @@ function deal(){
 function hideshow(e){
   cix = cards.indexOf(e); // card position in cards
   e.innerText = quiz[cix];
-  console.log("this card is " +quiz[cix]);
+  //console.log("this card is " +quiz[cix]);
 
   if (opened==null){
     //console.log("No other card opened ");
@@ -163,25 +167,28 @@ function hideshow(e){
       clearTimeout(toid);
       toid = setTimeout(function () {
         ping(1); // acknowledge a match
-        e.innerText="✅️"; 
-        opened.innerText="✅️"; // tick out
+        e.innerText = tick; 
+        opened.innerText = tick; // tick out
         e.style.animation = 'none'; 
-        e.removeEventListener("click", hideshow);
+        e.removeEventListener("click", _anonfn);
         opened.style.animation = 'none';
-        opened.removeEventListener("click", hideshow);
-        opened=null; 
+        opened.removeEventListener("click", _anonfn);
+        opened = null; 
         oix = null;
         msg.innerText = "Yes!";
-        }, 1000);
+        }, 500);
       
       npairs++;
       if (npairs>=8){
         ping(2); // say "end game"
-        msg.innerText = "ไชโย - ทำได้แล้ว";
-        //console.log("end game -- big splash and ,,,");
+        msg.innerText = "ไชโย ได้แล้ว"; 
+        clearTimeout(toid);
+        toid = setTimeout(function () {
+          msg.innerText = "เล่นอีก?";
+        }, 3000);
       }
-    } else {
-      console.log("mismatch "+oix+" ? "+cix+ " close both cards");
+    } else { // handle mismatch
+      console.log("mismatch "+quiz[oix]+" != "+quiz[cix]+ " close both cards");
       clearTimeout(toid);
       toid = setTimeout(function () {
         ping(0);
@@ -197,20 +204,21 @@ function hideshow(e){
 
 function ping(yn) {
   //set beep freq by the musical notes
-  var notes=[256.87, 272.14, 288.33, 305.47, 323.63, 342.88, 363.27, 384.87, 407.75, 432.00, 457.69, 484.90];
-  var N=notes[Math.floor(Math.random()*notes.length)];
-  if (yn==1) { beep2(notes[9],0,0.4,250, 0,0,0,0); }
-  else if (yn==0) { beep2(0,0,0,0, notes[3],0,0.3,125); }
-  else {
+  //var notes=[256.87, 272.14, 288.33, 305.47, 323.63, 342.88, 363.27, 384.87, 407.75, 432.00, 457.69, 484.90];
+  if (yn==1) {
+    beep2(432.0,0,0.4,250, 457.89,0,0.4,125); 
+  } else if (yn==0) { 
+    beep2(128.43,0,0.3,250, 256.87,0,0.3,125); 
+  } else {
     //end game play a few notes
-    beep2(432.0,0,0.4,250, 432.0,0,0.4,250);
+    beep2(432.0,0,0.4,500, 484.9,0,0.4,500);
     clearTimeout(toid);
     toid = setTimeout(function () {
-      beep2(342.88,0,0.4,250, 363.27,0,0.4,250);
-      }, 250);
+      beep2(969.8,0,0.4,250, 484.90,0,0.4,250);
+      }, 125);
     clearTimeout(toid);
     toid = setTimeout(function () {
-      beep2(305,0,0.4,250, 288.33,0,0.4,250);
+      beep2(484.9,0,0.4,750, 484.90,0,0.4,500);
       }, 250);
   }
 }
