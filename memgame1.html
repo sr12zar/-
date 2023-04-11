@@ -39,9 +39,10 @@
 }
 
 #board {
-  width: 360px;
-  height: 360px;
+  width: 352px;
+  height: 352px;
   background-color: #00001a;
+  padding: 2px 2px; 
   margin: auto;
 }
 
@@ -86,9 +87,12 @@ const btn = document.getElementById("btn");
 const msg = document.getElementById("msg");
 const xgame = document.getElementById("xmode").value;
 console.log("Game selected "+xgame);
-const Emos=['🚗️','😀️','🐥️','🙏️','🦓️','🐓️','🦖️','🐞️','🐑️','🪑️','🥬️','🦺️','🦘️','🌶️','🐎️','⚖️','🐧️','🦆️🕒️','🚲️','🏋‍♂️️','🚣‍♀️️','👁️','☂️','🦮️','🐒️','🍏️','☢️','🥕️','🥑️','🙉️','👩‍🦽️','🌏️'];
-const Tha="กจฎฏดตบปอคฅฆงชซฌญฑฒณทธนพฟภมยรลวฬฮขฃฉฐถผฝศษสห";
-const Lat="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const masks = ['🔳️','🌀️','🚭️','🔘️','🎛️'];
+var mask = ""; // cover icon
+const Emos=['🚗️','😀️','🐥️','🙏️','🦓️','🐓️','🦖️','🐞️','🐑️','🪑️','🥬️','🦺️','🦘️','🌶️','🐎️','⚖️',
+'🐧️','🦆️','🕒️','🚲️','🏋‍♂️️','🚣‍♀️️','👁️','☂️','🦮️','🐒️','🍏️','☢️','🥕️','🥑️','🙉️','👩‍🦽️','🌏️'];
+const Tha='กจฎฏดตบปอคฅฆงชซฌญฑฒณทธนพฟภมยรลวฬฮขฃฉฐถผฝศษสห';
+const Lat='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
 function shuffle(array) {
   for (var i = array.length - 1; i > 0; i--) {
@@ -106,7 +110,9 @@ function deal(){
     location.reload(); 
     msg,innerText="OK, เล่นอีก?";
   }
-  var faces; // work array
+  
+  mask = shuffle(masks)[0]; // choose a cover
+  var faces; // card-faces array
   switch (xgame) {
     case "emo": faces = Emos; break;  
     case "กขค" : faces = Array.from(Tha); break; 
@@ -123,7 +129,7 @@ function deal(){
       var card = document.createElement('div'); //create a card
       card.className = 'card';
       var t = 4*i+j;
-      card.innerText = "🔳️"; //thc[t]; // cover the face value
+      card.innerText = mask; //thc[t]; // cover the face value
 
       card.addEventListener("click", function (e) { hideshow(this); });
       //card.style.opacity = 0.7;
@@ -148,7 +154,7 @@ function hideshow(e){
   } else {
     //console.log(" card " +quiz[cix]+ " is opened");
     if (e==opened){ //already opened --> toggle close it
-      e.innerText = "🔳️"; // cover its face
+      e.innerText = mask; // cover its face
       e.style.opacity==0.7; // take off spotlight
       opened=null; oix = null; // reset oix too?
       //console.log(" click on opened card -- close it");
@@ -159,8 +165,10 @@ function hideshow(e){
         ping(1); // acknowledge a match
         e.innerText="✅️"; 
         opened.innerText="✅️"; // tick out
-        //e.classList.remove("shake"); // shake belongs to class
-        //opened.classList.remove("shake");
+        e.style.animation = 'none'; 
+        e.removeEventListener("click", hideshow);
+        opened.style.animation = 'none';
+        opened.removeEventListener("click", hideshow);
         opened=null; 
         oix = null;
         msg.innerText = "Yes!";
@@ -170,15 +178,15 @@ function hideshow(e){
       if (npairs>=8){
         ping(2); // say "end game"
         msg.innerText = "ไชโย - ทำได้แล้ว";
-        console.log("end game -- big splash and ,,,");
+        //console.log("end game -- big splash and ,,,");
       }
     } else {
       console.log("mismatch "+oix+" ? "+cix+ " close both cards");
       clearTimeout(toid);
       toid = setTimeout(function () {
         ping(0);
-        e.innerText = "🔳️"; //close the card
-        cards[oix].innerText = "🔳️";
+        e.innerText = mask; //close the card
+        cards[oix].innerText = mask;
         opened=null; 
         oix = null;
         msg.innerText = "..no?";
