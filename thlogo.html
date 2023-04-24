@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang = "th-TH">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>โลโก้ ก ข</title>
+<!--
+<script type='text/javascript' src='script/logo/rep.js'></script>
+<script type='text/javascript' src='script/logo/logo.js'></script>
+<script type='text/javascript' src='script/logo/png.js'></script>
+-->
+<style>
+div {
+  border: 1px solid blue;
+}
+label, select{
+  font-weight: bold;
+  display:flex;
+  flex-direction: column;
+}
+#svgarea {
+  width: 300px;
+  height: 300px;
+  position: relative;
+  background: linen;
+  padding 5px;
+  margin: 2px;
+}
+svg {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+#tt {
+  width: 20px;
+  height: 20px;
+  border: 1px solid black;
+  background-color: transparent;
+/*
+  border-radius: 25%;
+  position: absolute;
+
+  -webkit-animation-name: bgc;
+  -moz-animation-name: bgc;
+  -ms-animation-name: bgc;
+  animation-name: bgc;
+  animation-delay: 0.01s;
+  -webkit-animation-duration: 3s;
+  -moz-animation-duration: 3s;
+  -ms-animation-duration: 3s;
+  animation-duration:  3s;
+*/
+}
+#opt {
+  width: 42px;
+  height:300px;
+  color: lime;
+  background-color: black; 
+  display: inline-block;
+  vertical-align: top;
+  position: absolute;
+  top: 9px;
+  left: 315px;
+}
+.pcolors {
+  display: block;
+  vertical-align: top;
+}
+#pc {
+  width: 3em;
+}
+
+#ptype {
+  display: flex; 
+  flex-direction: column;
+}
+#pt {
+  width: 3em;
+}
+
+#cmds {
+  width: 350px;
+  color: lime;
+  background-color: black;
+  display: flex; 
+  flex-direction: row;
+}
+ 
+#opcode {
+  width: 4.5em;
+}
+#operand{
+  color: lime;
+}
+#num {
+  width: 4em;
+}
+#tci {
+  width: 14em;
+  background-color: bisque;
+}
+/* for SVG text */
+.text {
+  font-size: 20px;
+}
+.text-stroke{
+	fill: none;
+	stroke-width: 2;
+	stroke: #000;
+}
+.text-stroke-fill{	
+	stroke-width: 2;
+	stroke: #000;
+}
+.text-normal{	
+}
+
+button {
+  width: 40px;
+  height: 48px;
+  font-size: 32px;
+  background-color: gray;
+  position: absolute;
+  left: 318px;
+}
+
+#log {
+  width: 350px;
+  color: black;
+  font-size: 13px;
+  border: 1px dotted gray;
+  position: absolute;
+  top: 370px;
+  display: block;
+}
+</style>
+
+<body>
+<div id="svgarea"> </div>
+
+<div id="opt"> 
+ <div class="pcolors">
+  <label for="color">สี</label> 
+  <select name="color" id="pc"/>
+    <option value="black">⬛️</option>
+    <option value="red">🟥️</option>
+    <option value="orange">🟧️</option>
+    <option value="yellow">🟨️</option>
+    <option value="green">🟩️</option>
+    <option value="blue">🟦️</option>
+    <option value="indigo">🟪️</option>
+    <option value="brown">🟫️</option>
+    <option value="white">⬜️</option>
+  </select>
+ </div>
+ <div class="ptype">
+  <label for="type">เส้น</label>
+  <select name="type" id="pt"/>
+    <option value="1">..</option>
+    <option value="2">--</option>
+    <option value="4">==</option>
+<!-- these add style to line
+    <option value="dotted">...</option>
+    <option value="dashed">---</option>
+-->
+  </select>
+ </div>
+</div>
+
+<div id="cmds"> 
+   <div id="opcode" display: "inline-block">
+     <label for="cmd">เดิน</label>
+     <select name="cmd" id="opc"/> 
+       <option value="pd">เส้น ⬛️</option>
+       <option value="pu">เว้น 🔲️</option>      
+       <option value="h">บ้าน 🎯</option>          
+       <option value="lt">ซ้าย ⬅️</option>
+       <option value="rt">ขวา ➡️</option>
+       <option value="bk">หลัง ⬇️</option>
+       <option value="fd">หน้า ⬆️</option>
+       <option value="cs">ลบ 🧹️</option>
+<!-- these commands are **todo**
+       <option value="lo">จุดนี้ 📍️</option>
+       <option value="bg">ฉาก 🌅️</option> 
+       <option value="{ ">จาก {</option>
+       <option value="} ">ถึง }</option>
+       <option value="go">ทำ ✔️</option>
+       <option value="q">เลิก ❌️</option>
+-->
+     </select>
+   </div>
+   <div class="operand" style="display: inline-block;" >
+     <label for="num">ก้าว</label>
+     <input type="number" id="num" width=4 min="-300" value= "50" max="300"/>
+   </div>
+   <div id="cli">
+     <label for="tci">คำสั่ง</label>
+     <input type="text" id="tci" width=8 ></input>
+   </div>
+   <div><button id="run" onclick=runcmd()>🚀️</button>
+</div>
+
+<div id="log"></div>
+
+<script src="script/beeper2.js" type="text/javascript"></script>
+<script>
+SVG = {
+  createCanvas : function( width, height, containerId ){
+    var container = document.getElementById( containerId );
+    var canvas = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    canvas.setAttribute('width', width);
+    canvas.setAttribute('height', height);
+    container.appendChild( canvas );    
+    return canvas;
+  },
+  createLine : function (x1, y1, x2, y2, color, w) {
+    var aLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    aLine.setAttribute('x1', x1);
+    aLine.setAttribute('y1', y1);
+    aLine.setAttribute('x2', x2);
+    aLine.setAttribute('y2', y2);
+    aLine.setAttribute('stroke', color);
+    aLine.setAttribute('stroke-width', w);
+    return aLine;
+  },
+  createText : function (x, y, dx, dy) {
+    var aText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    aText.setAttribute('x', x);
+    aText.setAttribute('y', y);
+    aText.setAttribute('dx', dx);
+    aText.setAttribute('dy', dy);
+    aText.setAttribute('text-anchor',"middle");
+    aText.setAttribute('transform', 'rotate(0 150,150)');
+    return aText;
+  }
+}
+
+function len2XY (l, hd) {
+  var dx = Math.round(l*Math.sin(hd*Math.PI/180));
+  var dy = Math.round(l*Math.cos(hd*Math.PI/180)); 
+  return [cXY[0]+dx, cXY[1]-dy];   
+}
+
+// ***Initialize svg area and variables
+var timgs=["🐞️","🪳️","🪲️","🐠️","🥕️"]; // candidate for turtle image
+var _WIDTH = 300; _HEIGHT = 300;
+var _PD = true;
+var _COL = 'black';
+var _TYPE= 2;
+var w = null, aSvg = null, t = null; tt = null; // ids of elements
+var lines=[], line=null; // array of line ids
+var chd = 0; // current heading in deg, 0 is Nth, 90 E/Right. 180 Sth/Down,...
+var cX=_WIDTH/2, cY=_HEIGHT/2, cXY=[cX,cY]; // current XY, init'd to mid XY
+var tXY=[]; // target XY set by len2XY()
+var ith=0;
+const log = document.getElementById("log"); //cmd log
+
+function init() {
+  // set up svg area and 'turtle'
+  w = document.getElementById('svgarea');
+  aSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  aSvg.setAttribute('width', _WIDTH);
+  aSvg.setAttribute('height', _HEIGHT);
+
+  t = SVG.createText(cX, cY, 0, '0.5em');  
+  tg = document.createTextNode(timgs[0]); //["🐞️","🪳️","🪲️","🐠️","🥕️"]
+  t.appendChild(tg);
+  //t.setAttribute('transform', "rotate(45 150,150)") // set heading of emoji
+  aSvg.appendChild(t); // put turtle to svg
+  w.appendChild(aSvg); // put svg in html container
+}
+// initialize and wait
+if (t==null) {
+  init();   
+}
+
+function getcmd() {
+// build cmd: {op:, ld:, col:, wid:n} 
+// ? ['fd',30,'blue',2] --> [x2,y2,col,width]
+  var opc = document.getElementById("opc"); //opcode
+  var op = opc.options[opc.selectedIndex].value;
+  var txt = opc.options[opc.selectedIndex].text; //for debug only
+  var num = document.getElementById("num").value;
+  // should do when they change but...
+  var pc = document.getElementById("pc"); //pen color
+  _COL = pc.options[pc.selectedIndex].value;
+  var col = pc.options[pc.selectedIndex].text;
+  var pt = document.getElementById("pt"); //pen type
+  _TYPE = pt.options[pt.selectedIndex].value;
+  var typ = pt.options[pt.selectedIndex].text;
+  ith++;
+  logith=ith+": "+txt+" "+num+"; สี "+col+", เส้น "+typ+"\n";
+  log.innerText+=logith;
+  return {op: op, num: num, col: _COL, wid: _TYPE};
+}
+
+// when the button is pressed
+function runcmd() {
+  var cmd = getcmd(); // cmd={op: x, ld: n, col: c, wid: m}
+  //var cmd = {op: "fd", ld: 50}; // for test now
+  var op = cmd.op; ld = 1*cmd.num; //make it number
+  switch (op) {
+    case "q": break; // quit
+    case "cs": break; // clear svg area
+    case "pd": _PD = true; break;
+    case "pu": _PD = false; break;
+    case "h":  cXY = [_WIDTH/2, _HEIGHT/2]; break;
+    case "lt":
+      if (isNaN(ld)) return;
+      var hd = chd - ld; chd = hd % 360;
+      console.log("chd="+chd+ " cXY="+cXY);
+      t.setAttribute('transform', "rotate("+chd+" "+cXY+")");
+      break;
+    case "rt": 
+      if (isNaN(ld)) return;
+      var hd = chd + ld; chd = hd % 360;
+      console.log("chd="+chd+ " cXY="+cXY);
+      t.setAttribute('transform', "rotate("+chd+" "+cXY+")");
+      break;
+    case "fd": 
+      tXY = len2XY(ld, chd); //compute next point in XY
+      
+      if (_PD) { //create the line and put it in svg area
+        line=SVG.createLine(cXY[0],cXY[1],tXY[0],tXY[1],_COL,_TYPE);  
+        aSvg.appendChild(line); lines.push(line); // add to aSvg
+      }
+      // move turtle to end point
+      t.setAttribute('x',tXY[0]); t.setAttribute('y',tXY[1]);
+      t.setAttribute('transform', "rotate("+chd+" " +tXY+")"); // not needed?
+      cXY=tXY; // set new current point
+      console.log("cXY: "+cXY);
+      break;
+    case "bk":
+      tXY = len2XY(-ld, chd); //compute next point in XY
+      
+      if (_PD) { //create the line and put it in svg area
+        line=SVG.createLine(cXY[0],cXY[1],tXY[0],tXY[1],_COL,_TYPE);  
+        aSvg.appendChild(line); lines.push(line); // add to aSvg
+      }
+      // move turtle to end point
+      t.setAttribute('x',tXY[0]); t.setAttribute('y',tXY[1]);
+      t.setAttribute('transform', "rotate("+chd+" " +tXY+")"); // not needed
+      cXY=tXY; // set new current point
+      console.log("cXY: "+cXY);
+      break;
+  }
+}
+ 
+/*
+function beepL(){ beep2(frequency,0,volume,duration, 0,0,0,0); }
+function beepR(){ beep2(0,0,0,0, frequency,0,volume,duration); }
+function beepB(){ beep2(frequency,0,volume,duration, frequency,0,volume,duration); }
+function beepX(){
+  if (earL.checked) { beepL(); } 
+  else if (earR.checked) { beepR(); }
+  else if (earB.checked) { beepB(); }
+  //console.log("beeping..f="+frequency+' v='+volume+' d='+duration);
+}
+
+function score(){
+  //click when first hear something
+  //** todo plot a white symbol? and avg?
+ 
+  clicked=true;
+  removeClick();
+  nTests++;
+  var result = onear[ear]+" "+frequency+"hz นาน "+duration+"ms ดัง "+volume;
+  msg1.innerText = result;
+  //report.innertext += result +"\n"; //**todo in table and calc avg
+}
+*/
+</script>
+</body>
+</html>
+</script>
+
+</body>
+</html>
