@@ -168,7 +168,6 @@ button {
 </div>
 
 <div id="log"></div>
-
 <script src="script/beeper2.js" type="text/javascript"></script>
 <script>
 SVG = {
@@ -209,8 +208,12 @@ function len2XY (l, hd) {
   return [cXY[0]+dx, cXY[1]-dy];   
 }
 
+function beep(){
+  var freq1=64, vol1=0.4, dur1=250, freq2=128, vol2=0.3, dur2=500;
+  beep2(freq1,0,vol1,dur1, freq2,0,vol2,dur2); 
+}
+
 // ***Initialize svg area and variables
-var timgs=["🐞️","🪳️","🪲️","🐠️","🥕️"]; // candidate for turtle image
 var _WIDTH = 300; _HEIGHT = 300;
 var _PD = true;
 var _COL = 'black';
@@ -220,6 +223,8 @@ var lines=[], line=null; // array of line ids
 var chd = 0; // current heading in deg, 0 is Nth, 90 E/Right. 180 Sth/Down,...
 var cX=_WIDTH/2, cY=_HEIGHT/2, cXY=[cX,cY]; // current XY, init'd to mid XY
 var tXY=[]; // target XY set by len2XY()
+var timgs=["🐞️","🪳️","🪲️","🐠️","🥕️"]; // candidates for turtle image
+var ti=[...Array(timgs.length).keys()].sort(() => Math.random() - 0.5); // set turtle image
 var ith=0; // run cmd counter
 var _CLI = false; // commandline input assumed false
 const log = document.getElementById("log"); //cmd log
@@ -230,11 +235,14 @@ function init() {
   aSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   aSvg.setAttribute('width', _WIDTH);
   aSvg.setAttribute('height', _HEIGHT);
-
+ 
   t = SVG.createText(cX, cY, 0, '0.5em'); 
-  tg = document.createTextNode(timgs[0]); //["🐞️","🪳️","🪲️","🐠️","🥕️"]
+  tg = document.createTextNode(timgs[ti[0]]); 
   t.appendChild(tg);
-  //t.setAttribute('transform', "rotate(45 150,150)") // set heading of emoji
+  if (ti[0]==4)
+    t.setAttribute('transform', "rotate(-45 150,150)"); // set heading of timgs
+  else if (ti[0]==3)
+    t.setAttribute('transform', "rotate(90 150,150)");
   aSvg.appendChild(t); // put turtle to svg
   w.appendChild(aSvg); // put svg in html container
 }
@@ -244,15 +252,17 @@ if (t==null) {
 }
 
 function parsecmd(){
-  var cls = "@,pd,pu,h,lt,rt,bk,fd,cs"; // command list for now
+  var cls = "pd,pu,h,lt,rt,bk,fd,cs"; // command list for now
   var cli = document.getElementById("cli").value; //command line
   if (cli==null) { 
     return false;
   }
-  var cl = cli.split(" "); //split into [op,p1,p2...]
+  var cl = cli.toLowerCase().split(" "); //split into [op,p1,p2...]
   if (cls.indexOf(cl[0])== -1) {
+     beep();
      logith="? ไม่รู้จัก "+cl[0]+" กรุณาสั่งใหม่ \n";
-  } else if (isNaN(cl[1])) {
+  } else if (isNaN(parseInt(cl[1]))) {
+     beep(); 
      logith="? ไม่ใช่ตัวเลข "+cl[1]+" กรุณาใส่ ตัวเลขใหม่ \n";
   }
 
@@ -348,29 +358,6 @@ function runcmd(cmd) {
   log.innerText+=logith;
 }
  
-/*
-function beepL(){ beep2(frequency,0,volume,duration, 0,0,0,0); }
-function beepR(){ beep2(0,0,0,0, frequency,0,volume,duration); }
-function beepB(){ beep2(frequency,0,volume,duration, frequency,0,volume,duration); }
-function beepX(){
-  if (earL.checked) { beepL(); } 
-  else if (earR.checked) { beepR(); }
-  else if (earB.checked) { beepB(); }
-  //console.log("beeping..f="+frequency+' v='+volume+' d='+duration);
-}
-
-function score(){
-  //click when first hear something
-  //** todo plot a white symbol? and avg?
- 
-  clicked=true;
-  removeClick();
-  nTests++;
-  var result = onear[ear]+" "+frequency+"hz นาน "+duration+"ms ดัง "+volume;
-  msg1.innerText = result;
-  //report.innertext += result +"\n"; //**todo in table and calc avg
-}
-*/
 </script>
 </body>
 </html>
