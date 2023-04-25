@@ -4,14 +4,10 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>โลโก้ ก ข</title>
-<!--
-<script type='text/javascript' src='script/logo/rep.js'></script>
-<script type='text/javascript' src='script/logo/logo.js'></script>
-<script type='text/javascript' src='script/logo/png.js'></script>
--->
+
 <style>
 div {
-  border: 1px solid blue;
+  border: 1px solid lightgray;
 }
 label, select{
   font-weight: bold;
@@ -22,7 +18,7 @@ label, select{
   width: 300px;
   height: 300px;
   position: relative;
-  background: linen;
+  background: "#e6e6e6";
   padding 5px;
   margin: 2px;
 }
@@ -34,22 +30,8 @@ svg {
 #tt {
   width: 20px;
   height: 20px;
-  border: 1px solid black;
+  border: none;
   background-color: transparent;
-/*
-  border-radius: 25%;
-  position: absolute;
-
-  -webkit-animation-name: bgc;
-  -moz-animation-name: bgc;
-  -ms-animation-name: bgc;
-  animation-name: bgc;
-  animation-delay: 0.01s;
-  -webkit-animation-duration: 3s;
-  -moz-animation-duration: 3s;
-  -ms-animation-duration: 3s;
-  animation-duration:  3s;
-*/
 }
 #opt {
   width: 42px;
@@ -95,24 +77,9 @@ svg {
 #num {
   width: 4em;
 }
-#tci {
-  width: 14em;
+#cli {
+  width: 12em;
   background-color: bisque;
-}
-/* for SVG text */
-.text {
-  font-size: 20px;
-}
-.text-stroke{
-	fill: none;
-	stroke-width: 2;
-	stroke: #000;
-}
-.text-stroke-fill{	
-	stroke-width: 2;
-	stroke: #000;
-}
-.text-normal{	
 }
 
 button {
@@ -190,14 +157,14 @@ button {
      </select>
    </div>
    <div class="operand" style="display: inline-block;" >
-     <label for="num">ก้าว</label>
+     <label for="num">ก้าว| ํ</label>
      <input type="number" id="num" width=4 min="-300" value= "50" max="300"/>
    </div>
-   <div id="cli">
-     <label for="tci">คำสั่ง</label>
-     <input type="text" id="tci" width=8 ></input>
+   <div id=>
+     <label for="cli">คำสั่ง</label>
+     <input type="text" id="cli" onchange="parsecmd()"></input>
    </div>
-   <div><button id="run" onclick=runcmd()>🚀️</button>
+   <div><button id="run" onclick=getcmd()>🚀️</button>
 </div>
 
 <div id="log"></div>
@@ -229,8 +196,9 @@ SVG = {
     aText.setAttribute('y', y);
     aText.setAttribute('dx', dx);
     aText.setAttribute('dy', dy);
+    aText.setAttribute('font-size', "28px");
     aText.setAttribute('text-anchor',"middle");
-    aText.setAttribute('transform', 'rotate(0 150,150)');
+    //aText.setAttribute('transform', 'rotate(0 150,150)');
     return aText;
   }
 }
@@ -252,7 +220,8 @@ var lines=[], line=null; // array of line ids
 var chd = 0; // current heading in deg, 0 is Nth, 90 E/Right. 180 Sth/Down,...
 var cX=_WIDTH/2, cY=_HEIGHT/2, cXY=[cX,cY]; // current XY, init'd to mid XY
 var tXY=[]; // target XY set by len2XY()
-var ith=0;
+var ith=0; // run cmd counter
+var _CLI = false; // commandline input assumed false
 const log = document.getElementById("log"); //cmd log
 
 function init() {
@@ -262,7 +231,7 @@ function init() {
   aSvg.setAttribute('width', _WIDTH);
   aSvg.setAttribute('height', _HEIGHT);
 
-  t = SVG.createText(cX, cY, 0, '0.5em');  
+  t = SVG.createText(cX, cY, 0, '0.5em'); 
   tg = document.createTextNode(timgs[0]); //["🐞️","🪳️","🪲️","🐠️","🥕️"]
   t.appendChild(tg);
   //t.setAttribute('transform', "rotate(45 150,150)") // set heading of emoji
@@ -272,6 +241,22 @@ function init() {
 // initialize and wait
 if (t==null) {
   init();   
+}
+
+function parsecmd(){
+  var cls = "@,pd,pu,h,lt,rt,bk,fd,cs"; // command list for now
+  var cli = document.getElementById("cli").value; //command line
+  if (cli==null) { 
+    return false;
+  }
+  var cl = cli.split(" "); //split into [op,p1,p2...]
+  if (cls.indexOf(cl[0])== -1) {
+     logith="? ไม่รู้จัก "+cl[0]+" กรุณาสั่งใหม่ \n";
+  } else if (isNaN(cl[1])) {
+     logith="? ไม่ใช่ตัวเลข "+cl[1]+" กรุณาใส่ ตัวเลขใหม่ \n";
+  }
+
+  runcmd( {op: cl[0], num: cl[1], col: _COL, wid: _TYPE} );
 }
 
 function getcmd() {
@@ -288,34 +273,48 @@ function getcmd() {
   var pt = document.getElementById("pt"); //pen type
   _TYPE = pt.options[pt.selectedIndex].value;
   var typ = pt.options[pt.selectedIndex].text;
-  ith++;
-  logith=ith+": "+txt+" "+num+"; สี "+col+", เส้น "+typ+"\n";
-  log.innerText+=logith;
-  return {op: op, num: num, col: _COL, wid: _TYPE};
+
+  runcmd( {op: op, num: num, col: _COL, wid: _TYPE} );
 }
 
 // when the button is pressed
-function runcmd() {
-  var cmd = getcmd(); // cmd={op: x, ld: n, col: c, wid: m}
-  //var cmd = {op: "fd", ld: 50}; // for test now
+function runcmd(cmd) {
+  // cmd={op: x, ld: n, col: c, wid: m}
+
   var op = cmd.op; ld = 1*cmd.num; //make it number
+  ith++; // cmd counter
   switch (op) {
-    case "q": break; // quit
-    case "cs": break; // clear svg area
-    case "pd": _PD = true; break;
-    case "pu": _PD = false; break;
-    case "h":  cXY = [_WIDTH/2, _HEIGHT/2]; break;
+    case "q": // quit
+      logith=ith+": "+op+" OK เลิกวาด?\n";
+      break; 
+    case "cs": // clear svg area
+      logith=ith+": "+op+" OK ลบรูปออกทั้งหมด\n";
+      break; 
+    case "pd":
+      _PD = true; 
+      logith=ith+": "+op+" วาด สี "+_COL+", แบบ "+_TYPE+"\n";
+      break;
+    case "pu":
+      _PD = false; _COL = "e6e6e6";
+      logith=ith+": "+op+" เว้นวาด สี "+_COL+", แบบ "+_TYPE+"\n";
+      break;
+    case "h":  
+      cXY = [_WIDTH/2, _HEIGHT/2];
+      logith=ith+": "+op+" กลับบ้าน\n";
+      break;
     case "lt":
       if (isNaN(ld)) return;
       var hd = chd - ld; chd = hd % 360;
-      console.log("chd="+chd+ " cXY="+cXY);
+      //console.log("chd="+chd+ " cXY="+cXY);
       t.setAttribute('transform', "rotate("+chd+" "+cXY+")");
+      logith=ith+": "+op+" "+ld+"; หันซ้าย "+ld+" ดีกรี\n";
       break;
     case "rt": 
       if (isNaN(ld)) return;
       var hd = chd + ld; chd = hd % 360;
-      console.log("chd="+chd+ " cXY="+cXY);
+      //console.log("chd="+chd+ " cXY="+cXY);
       t.setAttribute('transform', "rotate("+chd+" "+cXY+")");
+      logith=ith+": "+op+" "+ld+"; หันขวา "+ld+" ดีกรี\n";
       break;
     case "fd": 
       tXY = len2XY(ld, chd); //compute next point in XY
@@ -328,7 +327,8 @@ function runcmd() {
       t.setAttribute('x',tXY[0]); t.setAttribute('y',tXY[1]);
       t.setAttribute('transform', "rotate("+chd+" " +tXY+")"); // not needed?
       cXY=tXY; // set new current point
-      console.log("cXY: "+cXY);
+      //console.log("cXY: "+cXY);
+      logith=ith+": "+op+" "+ld+"; ไปหน้า "+ld+" ก้าว สี "+_COL+", แบบ "+_TYPE+"\n";
       break;
     case "bk":
       tXY = len2XY(-ld, chd); //compute next point in XY
@@ -341,9 +341,11 @@ function runcmd() {
       t.setAttribute('x',tXY[0]); t.setAttribute('y',tXY[1]);
       t.setAttribute('transform', "rotate("+chd+" " +tXY+")"); // not needed
       cXY=tXY; // set new current point
-      console.log("cXY: "+cXY);
+      //console.log("cXY: "+cXY);
+      logith=ith+": "+op+" "+ld+"; ถอยหลัง "+ld+" ก้าว สี "+_COL+", แบบ "+_TYPE+"\n";
       break;
   }
+  log.innerText+=logith;
 }
  
 /*
