@@ -220,11 +220,16 @@ var _COL = 'black';
 var _TYPE= 2;
 var w = null, aSvg = null, t = null; tt = null; // ids of elements
 var lines=[], line=null; // array of line ids
-var chd = 0; // current heading in deg, 0 is Nth, 90 E/Right. 180 Sth/Down,...
+
 var cX=_WIDTH/2, cY=_HEIGHT/2, cXY=[cX,cY]; // current XY, init'd to mid XY
 var tXY=[]; // target XY set by len2XY()
+// ?what we see as emojis are NOT what they show on svg text element?
 var timgs=["🐞️","🪳️","🪲️","🐠️","🥕️"]; // candidates for turtle image
-var ti=[...Array(timgs.length).keys()].sort(() => Math.random() - 0.5); // set turtle image
+var tN=[0,0,0,90,-45]; //degrees to make turtle's head points North
+var tRnd=[...Array(timgs.length).keys()].sort(() => Math.random() - 0.5); 
+var ti = tRnd[0]; // pick emoji
+var tad = tN[ti]; // emoji heading adjustment
+var chd = 0; // current heading in deg, 0 is Nth, 90 E/Right. 180 Sth/Down,...
 var ith=0; // run cmd counter
 var _CLI = false; // commandline input assumed false
 const log = document.getElementById("log"); //cmd log
@@ -237,12 +242,9 @@ function init() {
   aSvg.setAttribute('height', _HEIGHT);
  
   t = SVG.createText(cX, cY, 0, '0.5em'); 
-  tg = document.createTextNode(timgs[ti[0]]); 
+  tg = document.createTextNode(timgs[ti]); 
   t.appendChild(tg);
-  if (ti[0]==4)
-    t.setAttribute('transform', "rotate(-45 150,150)"); // set heading of timgs
-  else if (ti[0]==3)
-    t.setAttribute('transform', "rotate(90 150,150)");
+  t.setAttribute("transform", "rotate("+tad+" "+cXY+")" ); // adjust img
   aSvg.appendChild(t); // put turtle to svg
   w.appendChild(aSvg); // put svg in html container
 }
@@ -290,8 +292,9 @@ function getcmd() {
 // when the button is pressed
 function runcmd(cmd) {
   // cmd={op: x, ld: n, col: c, wid: m}
-
-  var op = cmd.op; ld = 1*cmd.num; //make it number
+  var op = cmd.op; ld = parseInt(cmd.num);
+  var thd = chd+tad; //adj img heading
+  
   ith++; // cmd counter
   switch (op) {
     case "q": // quit
@@ -299,6 +302,7 @@ function runcmd(cmd) {
       break; 
     case "cs": // clear svg area
       logith=ith+": "+op+" OK ลบรูปออกทั้งหมด\n";
+      application.reload();
       break; 
     case "pd":
       _PD = true; 
@@ -314,16 +318,16 @@ function runcmd(cmd) {
       break;
     case "lt":
       if (isNaN(ld)) return;
-      var hd = chd - ld; chd = hd % 360;
-      //console.log("chd="+chd+ " cXY="+cXY);
-      t.setAttribute('transform', "rotate("+chd+" "+cXY+")");
+      var hd = chd - ld; chd = hd % 360; thd = chd + tad;
+      //console.log("lt: chd="+chd+" thd="+thd+" cXY="+cXY);
+      t.setAttribute('transform', "rotate("+thd+" "+cXY+")");
       logith=ith+": "+op+" "+ld+"; หันซ้าย "+ld+" ดีกรี\n";
       break;
     case "rt": 
       if (isNaN(ld)) return;
-      var hd = chd + ld; chd = hd % 360;
-      //console.log("chd="+chd+ " cXY="+cXY);
-      t.setAttribute('transform', "rotate("+chd+" "+cXY+")");
+      var hd = chd + ld; chd = hd % 360; thd = chd + tad;
+      //console.log("rt: chd="+chd+" thd="+thd+" cXY="+cXY);
+      t.setAttribute('transform', "rotate("+thd+" "+cXY+")");
       logith=ith+": "+op+" "+ld+"; หันขวา "+ld+" ดีกรี\n";
       break;
     case "fd": 
@@ -335,7 +339,7 @@ function runcmd(cmd) {
       }
       // move turtle to end point
       t.setAttribute('x',tXY[0]); t.setAttribute('y',tXY[1]);
-      t.setAttribute('transform', "rotate("+chd+" " +tXY+")"); // not needed?
+      t.setAttribute('transform', "rotate("+thd+" " +tXY+")"); // not needed?
       cXY=tXY; // set new current point
       //console.log("cXY: "+cXY);
       logith=ith+": "+op+" "+ld+"; ไปหน้า "+ld+" ก้าว สี "+_COL+", แบบ "+_TYPE+"\n";
@@ -349,9 +353,8 @@ function runcmd(cmd) {
       }
       // move turtle to end point
       t.setAttribute('x',tXY[0]); t.setAttribute('y',tXY[1]);
-      t.setAttribute('transform', "rotate("+chd+" " +tXY+")"); // not needed
+      t.setAttribute('transform', "rotate("+thd+" " +tXY+")"); // not needed
       cXY=tXY; // set new current point
-      //console.log("cXY: "+cXY);
       logith=ith+": "+op+" "+ld+"; ถอยหลัง "+ld+" ก้าว สี "+_COL+", แบบ "+_TYPE+"\n";
       break;
   }
