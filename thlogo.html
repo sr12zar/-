@@ -136,7 +136,7 @@ button {
 
 <div id="cmds"> 
    <div id="opcode" display: "inline-block">
-     <label for="cmd">เดิน</label>
+     <label for="cmd">เดิน|หัน</label>
      <select name="cmd" id="opc"/> 
        <option value="pd">เส้น ⬛️</option>
        <option value="pu">เว้น 🔲️</option>      
@@ -161,8 +161,8 @@ button {
      <input type="number" id="num" width=4 min="-300" value= "50" max="300"/>
    </div>
    <div id=>
-     <label for="cli">คำสั่ง</label>
-     <input type="text" id="cli" onchange="parsecmd()"></input>
+     <label for="cli">คำสั่ง 'op [999]'</label>
+     <input type="text" id="cli" onchange="parsecmd()" onfocus="this.value=''"></input>
    </div>
    <div><button id="run" onclick=getcmd()>🚀️</button>
 </div>
@@ -219,19 +219,18 @@ var _PD = true;
 var _COL = 'black';
 var _TYPE= 2;
 var w = null, aSvg = null, t = null; tt = null; // ids of elements
-var lines=[], line=null; // array of line ids
 
-var cX=_WIDTH/2, cY=_HEIGHT/2, cXY=[cX,cY]; // current XY, init'd to mid XY
+var cXY=[_WIDTH/2, _HEIGHT/2]; // current XY, init'd to mid XY
 var tXY=[]; // target XY set by len2XY()
 // ?what we see as emojis are NOT what they show on svg text element?
 var timgs=["🐞️","🪳️","🪲️","🐠️","🥕️"]; // candidates for turtle image
-var tN=[0,0,0,90,-45]; //degrees to make turtle's head points North
 var tRnd=[...Array(timgs.length).keys()].sort(() => Math.random() - 0.5); 
 var ti = tRnd[0]; // pick emoji
+var tN=[0,0,0,90,-45]; //degrees to make turtle's head points North
 var tad = tN[ti]; // emoji heading adjustment
 var chd = 0; // current heading in deg, 0 is Nth, 90 E/Right. 180 Sth/Down,...
-var ith=0; // run cmd counter
-var _CLI = false; // commandline input assumed false
+var ic = 0; // run cmd counter
+//var _CLI = false; // commandline input assumed false
 const log = document.getElementById("log"); //cmd log
 
 function init() {
@@ -241,7 +240,7 @@ function init() {
   aSvg.setAttribute('width', _WIDTH);
   aSvg.setAttribute('height', _HEIGHT);
  
-  t = SVG.createText(cX, cY, 0, '0.5em'); 
+  t = SVG.createText(cXY[0], cXY[1], 0, '0.5em'); 
   tg = document.createTextNode(timgs[ti]); 
   t.appendChild(tg);
   t.setAttribute("transform", "rotate("+tad+" "+cXY+")" ); // adjust img
@@ -262,10 +261,10 @@ function parsecmd(){
   var cl = cli.toLowerCase().split(" "); //split into [op,p1,p2...]
   if (cls.indexOf(cl[0])== -1) {
      beep();
-     logith="? ไม่รู้จัก "+cl[0]+" กรุณาสั่งใหม่ \n";
+     logit="? ไม่รู้จัก "+cl[0]+" กรุณาสั่งใหม่ \n";
   } else if (isNaN(parseInt(cl[1]))) {
      beep(); 
-     logith="? ไม่ใช่ตัวเลข "+cl[1]+" กรุณาใส่ ตัวเลขใหม่ \n";
+     logit="? ไม่ใช่ตัวเลข "+cl[1]+" กรุณาใส่ ตัวเลขใหม่ \n";
   }
 
   runcmd( {op: cl[0], num: cl[1], col: _COL, wid: _TYPE} );
@@ -295,70 +294,79 @@ function runcmd(cmd) {
   var op = cmd.op; ld = parseInt(cmd.num);
   var thd = chd+tad; //adj img heading
   
-  ith++; // cmd counter
+  ic++; // cmd counter
   switch (op) {
     case "q": // quit
-      logith=ith+": "+op+" OK เลิกวาด?\n";
+      logit=ic+": "+op+" OK เลิกวาด?\n";
       break; 
     case "cs": // clear svg area
-      logith=ith+": "+op+" OK ลบรูปออกทั้งหมด\n";
-      application.reload();
+      logit=ic+": "+op+" OK ลบรูปออกทั้งหมด\n";
+      while (aSvg.hasChildNodes()) {
+        aSvg.removeChild(aSvg.firstChild);
+      }
+      cXY = [_WIDTH/2, _HEIGHT/2]; chd = 0;
+      t.setAttribute('x',cXY[0]); t.setAttribute('y',cXY[1]);
+      t.setAttribute('transform', "rotate("+tad+" " +cXY+")");
+      aSvg.appendChild(t); // put turtle to svg
       break; 
     case "pd":
       _PD = true; 
-      logith=ith+": "+op+" วาด สี "+_COL+", แบบ "+_TYPE+"\n";
+      logit=ic+": "+op+" วาด สี "+_COL+", แบบ "+_TYPE+"\n";
       break;
     case "pu":
       _PD = false; _COL = "e6e6e6";
-      logith=ith+": "+op+" เว้นวาด สี "+_COL+", แบบ "+_TYPE+"\n";
+      logit=ic+": "+op+" เว้นวาด สี "+_COL+", แบบ "+_TYPE+"\n";
       break;
     case "h":  
-      cXY = [_WIDTH/2, _HEIGHT/2];
-      logith=ith+": "+op+" กลับบ้าน\n";
+      cXY = [_WIDTH/2, _HEIGHT/2]; // leave heading as is
+      t.setAttribute('x',cXY[0]); t.setAttribute('y',cXY[1]);
+      t.setAttribute('transform', "rotate("+chd+" " +cXY+")");
+      logit=ic+": "+op+" กลับบ้าน\n";
       break;
     case "lt":
       if (isNaN(ld)) return;
       var hd = chd - ld; chd = hd % 360; thd = chd + tad;
       //console.log("lt: chd="+chd+" thd="+thd+" cXY="+cXY);
       t.setAttribute('transform', "rotate("+thd+" "+cXY+")");
-      logith=ith+": "+op+" "+ld+"; หันซ้าย "+ld+" ดีกรี\n";
+      logit=ic+": "+op+" "+ld+"; หันซ้าย "+ld+" ดีกรี\n";
       break;
     case "rt": 
       if (isNaN(ld)) return;
       var hd = chd + ld; chd = hd % 360; thd = chd + tad;
       //console.log("rt: chd="+chd+" thd="+thd+" cXY="+cXY);
       t.setAttribute('transform', "rotate("+thd+" "+cXY+")");
-      logith=ith+": "+op+" "+ld+"; หันขวา "+ld+" ดีกรี\n";
+      logit=ic+": "+op+" "+ld+"; หันขวา "+ld+" ดีกรี\n";
       break;
     case "fd": 
       tXY = len2XY(ld, chd); //compute next point in XY
       
       if (_PD) { //create the line and put it in svg area
         line=SVG.createLine(cXY[0],cXY[1],tXY[0],tXY[1],_COL,_TYPE);  
-        aSvg.appendChild(line); lines.push(line); // add to aSvg
+        aSvg.appendChild(line); //lines.push(line); // add to aSvg
       }
       // move turtle to end point
       t.setAttribute('x',tXY[0]); t.setAttribute('y',tXY[1]);
       t.setAttribute('transform', "rotate("+thd+" " +tXY+")"); // not needed?
       cXY=tXY; // set new current point
       //console.log("cXY: "+cXY);
-      logith=ith+": "+op+" "+ld+"; ไปหน้า "+ld+" ก้าว สี "+_COL+", แบบ "+_TYPE+"\n";
+      logit=ic+": "+op+" "+ld+"; ไปหน้า "+ld+" ก้าว สี "+_COL+", แบบ "+_TYPE+"\n";
       break;
     case "bk":
       tXY = len2XY(-ld, chd); //compute next point in XY
       
       if (_PD) { //create the line and put it in svg area
         line=SVG.createLine(cXY[0],cXY[1],tXY[0],tXY[1],_COL,_TYPE);  
-        aSvg.appendChild(line); lines.push(line); // add to aSvg
+        aSvg.appendChild(line); //lines.push(line); // add to aSvg
       }
       // move turtle to end point
       t.setAttribute('x',tXY[0]); t.setAttribute('y',tXY[1]);
       t.setAttribute('transform', "rotate("+thd+" " +tXY+")"); // not needed
       cXY=tXY; // set new current point
-      logith=ith+": "+op+" "+ld+"; ถอยหลัง "+ld+" ก้าว สี "+_COL+", แบบ "+_TYPE+"\n";
-      break;
+      logit=ic+": "+op+" "+ld+"; ถอยหลัง "+ld+" ก้าว สี "+_COL+", แบบ "+_TYPE+"\n";
+      break;   
   }
-  log.innerText+=logith;
+  
+  log.innerText+=logit;
 }
  
 </script>
