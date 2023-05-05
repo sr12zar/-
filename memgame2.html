@@ -1,0 +1,306 @@
+<!DOCTYPE HTML>
+<html lang = "th-TH">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หาเพื่อน ก ข</title>
+<style>
+label, #xmode {
+  font-size: 20px;
+}
+button {
+  width: 30px;
+  height: 30px;
+  padding: 1px 1px;
+  margin: 1px 1px;
+  font-size: 28px;
+}
+#msg {
+  font-size: 24px;
+  color: blue;
+}
+
+.card {
+  height: 75px;
+  width: 75px;
+  border: 2px solid white;
+  padding: 2px 2px;
+  text-align: center;
+  font-size: 60px; 
+  color: yellow;
+  margin: 2px 2px;
+  display: inline-block;
+  cursor: pointer;
+  opacity: 0.7;
+  border-radius: 25%;  
+}
+.card:hover {
+  animation: shake 0.5s;
+   animation-iteration-count: 2; 
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+#board {
+  width: 352px;
+  height: 352px;
+  background-color: #00001a;
+  padding: 2px 2px; 
+  margin: auto;
+}
+
+</style>
+</head>
+<body>
+<h2>หาเพื่อน</h2>
+<p>
+ <label for="game"><b>เลือก..</b</label>
+ <select name="game" id="xmode">
+   <option value="emo" title="อีโมจิ">.👁️.</option>
+   <option value="กขค" title="ลายสือไทย">กข.</option>
+   <option value="ກ=ก" title="ลาว-ไทย">ກ=ก</option>
+   <option value="ᨠᨡค" title="ล้านนา-ไทย">ᨠᨡค</option>
+   <option value="ក=ก" title="พม่า-ไทย">ក=ก</option>
+   <option value="က=ก" title="เขมร-ไทย">က=ก</option>
+   <option value="ᨠᨡᨢ" title="ตั็วธรรม">ᨠᨡᨢ</option>
+   <option value="abc" title="อังกฤษ">aBC</option>
+ </select> 
+ <button id="btn" onclick="deal()">▶️</button> 
+ <span id="msg"><-กดปุ่ม เล่น</span>
+</p>
+<div id="board">
+</div>
+<div id="pairs"></div>
+<script src="script/beeper2.js" type="text/javascript"></script>
+<script>
+let reload = 0; // for reloading
+let toid = null; // timeout id
+let npairs = 0; // pairs discovered to end game
+var opened = null; // card object opened
+var cards = []; // save card objects
+var quiz = [];  // save card query
+var oix = null, cix = null; //positions in cards arrays
+var xgame; // selected game
+const board = document.getElementById("board");
+const btn = document.getElementById("btn");
+const msg = document.getElementById("msg");
+const pairs = document.getElementById("pairs");
+const masks = ['🔳️','🌀️','🚭️','🔘️','🏡️','💢️','🧿️'];
+var mask = ""; // cover icon to be set each play
+var tick = "✅️";
+var query, twin; // card query and its twin arrays 
+
+const Emos=['🚗️','😀️','🐥️','🙏️','🦓️','🐓️','🦖️','🐞️','🐑️','🪑️','🥬️','🦺️','🦘️','🌶️','🐎️','⚖️',
+'🐧️','🦆️','🕒️','🚲️','🏋‍♂️️','🚣‍♀️️','👁️','☂️','🦮️','🐒️','🍏️','☢️','🥕️','🥑️','🙉️','👩‍🦽️','🌏️'];
+const Lat='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+//** Alphabets (?of the same origin) used in SouthEast Asia **//
+//Thg='กจฎฏดตบปอคฅฆงชซฌญฑฒณทธนพฟภมยรลวฬฮขฃฉฐถผฝศษสห'; //alphabet classic groups
+const THa='กขฃคฅฆงจฉชซฌญฏฐฑฎดฒณตถทธนบปผฝพฟภมยรลวศษสหฬอฮฤฦ';
+const TLa='ᨠᨡᨢᨣᨤᨥᨦᨧᨨᨩᨪᨫᨬᨭᨮᨯᨰᨱᨲᨳᨴᨵᨶᨷᨸᨹᨺᨻᨼᨽᨾᨿᩀᩁᩂᩃᩄᩅᩆᩇᩈᩉᩊᩋᩌᩍᩎᩏ'; //Tai Lanna
+//TLa equiv. THa but with ຍ=ญ, ᩀ=อย/หย -- ยา อย่า ย่า=หญ้า ย้า หยา  ย; ญ=nj/ny ñ in Pali
+//const LOx="ກຂ_ຄ_ຄງຈສຊ_ຊຍຕຖທດດທນຕຖທທນບປຜຝພຟພມຍຣລວສສສຫລອຮ--"; //Lo ຍ=ญ, ᩀ=อย, no ฤฦ
+const LOa='ກຂຄງຈສຊຍດຕຖທນບປຜຝພຟມຢຣລວຫອຮ'; // Lao [lo] 28 chars
+const THb='กขคงจสซญดตถทนบปผฝพฟมยรลวหอฮ'; // 'ฉฎฏฐฑฒณธภศษฬ'excluded
+const KHa="កខ_គ_ឃងចឆជ_ឈញដឋឌឍណតថទធនប_ផ_ព_ភមយ_រលវឝឞសហឡអ_ឫឭ"; // KH no ฮ, yes ฤฦ
+const MMa="ကခ_ဂ_ဃငစဆဇ_ဈညဋဌဍဎဏတထဒဓနပ_ဖ_ဗ_ဘမယ_ရလဝၐၑသဟဠအ_ၒၔ"; // MN no ฮ, yes ฤฦ
+
+function shuffle(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+  return arr;
+}
+var _anonfn = function (e) { hideshow(this); }; // for removeEventListener
+
+function deal() {
+  if (reload==0) {reload=1;} 
+  else {
+    // clear the mem cards then reload
+    const cds = document.getElementById("board");
+    while (cds.hasChildNodes()) {
+      cds.removeChild(cds.firstChild);
+    }
+    location.reload(); 
+    msg.innerText="OK, เล่นอีก?";
+  }
+  
+  mask = shuffle(masks)[0]; // choose a cover
+  xgame = document.getElementById("xmode").value;
+  //***Google Chrome resets to 1st option on reload -- must reselect***
+  //var xgame = xmode.options[xmode.selectedIndex].value;
+  // set query array and its twin array (of equivalent Thai chars)
+  switch (xgame) {
+    case "emo" : query = Emos; twin = query; break;  
+    case "กขค": query = Array.from(THa); twin = query; break;
+    case "ᨠᨡค": query = Array.from(TLa); twin = Array.from(THa); break;
+    case "ກ=ก": query = Array.from(LOa); twin = Array.from(THb); break;
+    case "ក=ก": query = Array.from(KHa); twin = Array.from(THa); break; 
+    case "က=ก": query = Array.from(MMa); twin = Array.from(THa); break; 
+    case "ᨠᨡᨢ": query = Array.from(TLa); twin = query; break;
+    case "abc" : query = Array.from(Lat); twin = query; break; 
+  }
+
+  var qrnd = [...Array(query.length).keys()]
+             .sort(function(){return 0.5 - Math.random()}); // index array
+  var n8 = qrnd.slice(0,8); //select 8 query positions
+  
+  // fill query and twin chars
+  var q8 = [], t8 = []; // query and its twin chars in THa 
+  if (["ກ=ก","ᨠᨡค","ក=ก","က=ก"].indexOf(xgame)>-1) {
+    for (var i=0; i<8; i++) {
+      // handle char "_" replacing it with next unselected 
+      if (query[n8[i]]=="_") {
+        //console.log("_ found: for "+n8[i]+" at i="+i);
+        var g = n8[i];
+        for (var s=0;s<5;s++) {
+          g++; if (g>query.length) g -=query.length;
+          //console.log("**g="+g+" q="+query[g]+" n8="+n8);
+          if (!(query[g]=="_") && (n8.indexOf(g)==-1)) {
+            n8[i] = g;
+            //console.log("<<replaced n8["+i+"]= "+g+" ="+query[g]);
+            break;
+          } else continue;
+        } 
+        //console.log(i+" "+n8[i]+" ="+query[n8[i]]);
+      }   
+      //console.log(i+" "+n8[i]+" ="+query[n8[i]]);
+
+      q8[i] = query[n8[i]]; // Query letter
+      t8[i] = twin[n8[i]];  // corresp THa letter
+      //console.log("i="+i+" at="+n8[i]+" q="+query[n8[i]]+" t="+twin[n8[i]]);
+    } 
+    //console.log("n8="+n8+" q8="+q8+" t8="+t8);
+    quiz = shuffle([...q8, ...t8]); // mixed query and twin cards
+  } else {
+    for (var i=0; i<8; i++) {
+     q8[i] = query[n8[i]];  // corresp query letter
+    }
+    quiz = shuffle([...q8, ...q8]); // double and shuffle -->quiz
+  }
+  //console.log("After doubled & shuffled "+ quiz);
+
+  for(var i=0;i<4;i++){ //row
+    for(var j=0;j<4;j++){ //column
+      var card = document.createElement('div'); //create a card
+      card.className = 'card';
+      var t = 4*i+j;
+      card.innerText = mask; //thc[t]; // cover the face value
+      //card.addEventListener("click", function (e) { hideshow(this); });
+      card.addEventListener("click", _anonfn);
+      board.appendChild(card); // add to board
+      cards[t] = card; // save card object  
+    }
+  }
+}
+
+function ismatched(xgame) {
+  if (["ກ=ก","ᨠᨡค","ក=ก","က=ก"].indexOf(xgame)>-1) {
+    var cit = twin.indexOf(quiz[cix]); // -1:not in twin; else pos 
+    var ciq = query.indexOf(quiz[cix]);
+    //matched if a query card with the same position as opened card
+    //matched if a twin  card with the same position as opened card 
+    if ( ( (cit>-1) && (cit==query.indexOf(quiz[oix])) ) ||
+       ( (ciq>-1) && (ciq==twin.indexOf(quiz[oix])) ) ) return true; 
+     else return false;
+  } else if (quiz[oix]==quiz[cix]) return true;
+         else return false; 
+}
+
+function hideshow(e) {
+  cix = cards.indexOf(e); // card position in cards
+  e.innerText = quiz[cix]; // display face value
+  var matched=false, ciq, cit; // card in query, in twin
+  //console.log("This card is " +quiz[cix]);
+
+  if (opened==null) {
+    //console.log("No other card opened ");
+    opened = e; // save it and its index
+    oix = cix;
+    e.innerText = quiz[oix]; // show its face
+    e.style.opacity==1.0;   
+  } else { // a card is already opened -- do matching
+    //console.log("  this card is "+quiz[cix]+" already opened "+quiz[oix]);
+    if (e==opened) { //already opened --> toggle close it
+      e.innerText = mask; // cover its face
+      e.style.opacity==0.7; // take off spotlight
+      opened=null; oix = null; // reset oix too?      
+      //console.log(" click on opened card -- close it");
+    } else if (ismatched(xgame)) { // a match on face/position value
+      //console.log("a match --remove both cards from board");
+      clearTimeout(toid);
+      toid = setTimeout(function () {
+        ping(1); // acknowledge a match
+        e.innerText = tick; 
+        opened.innerText = tick; // tick out
+        e.style.animation = 'none'; 
+        e.removeEventListener("click", _anonfn);
+        opened.style.animation = 'none';
+        opened.removeEventListener("click", _anonfn);
+        msg.innerText = "Yes! "+quiz[oix]+"="+quiz[cix];
+        pairs.innerText += " "+quiz[oix]+"="+quiz[cix];
+        opened = null; oix = null;    
+        }, 650);
+      
+      npairs++;
+      if (npairs>=8){
+        ping(2); // say "end game"
+        msg.innerText = "ไชโย ได้แล้ว"; 
+        clearTimeout(toid);
+        toid = setTimeout(function () {
+          msg.innerText = "เล่นอีก?";
+        }, 1000);
+      }
+    } else { // handle mismatch
+      //console.log("mismatch "+quiz[oix]+" != "+quiz[cix]+ " close both cards");
+      clearTimeout(toid);
+      toid = setTimeout(function () {
+        ping(0);
+        e.innerText = mask; //close the card
+        cards[oix].innerText = mask;
+        opened=null; 
+        oix = null;
+        msg.innerText = "..no?";
+      }, 800);
+    }
+  }
+}
+
+function ping(yn) {
+  //set beep freq by the musical notes
+  //var notes=[256.87, 272.14, 288.33, 305.47, 323.63, 342.88, 363.27, 384.87, 407.75, 432.00, 457.69, 484.90];
+  if (yn==1) {
+    beep2(432.0,1,0.4,250, 457.89,2,0.4,125); 
+  } else if (yn==0) { 
+    beep2(128.43,2,0.3,250, 256.9,1,0.3,125); 
+  } else {
+    //end game play a few notes
+    beep2(256.0,1,0.4,500, 256.9,2,0.4,500);
+    clearTimeout(toid);
+    toid = setTimeout(function () {
+      beep2(432.0,2,0.4,250, 432.0,1,0.4,250);
+      }, 125);
+    clearTimeout(toid);
+    toid = setTimeout(function () {
+      beep2(969.8,1,0.4,750, 969.8,1,0.4,500);
+      }, 250);
+  }
+}
+</script>
+
+</body>
+</html>
