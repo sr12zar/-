@@ -109,13 +109,13 @@ const Lat='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 //** Alphabets (?of the same origin) used in SouthEast Asia **//
 //Thg='กจฎฏดตบปอคฅฆงชซฌญฑฒณทธนพฟภมยรลวฬฮขฃฉฐถผฝศษสห'; //alphabet classic groups
 const THa='กขฃคฅฆงจฉชซฌญฏฐฑฎดฒณตถทธนบปผฝพฟภมยรลวศษสหฬอฮฤฦ';
-const TLa='ᨠᨡᨢᨣᨤᨥᨦᨧᨨᨩᨪᨫᨬᨭᨮᨯᨰᨱᨲᨳᨴᨵᨶᨷᨸᨹᨺᨻᨼᨽᨾᨿᩀᩁᩂᩃᩄᩅᩆᩇᩈᩉᩊᩋᩌᩍᩎᩏ'; //Tai Lanna
-//TLa equiv. THa but with ຍ=ญ, ᩀ=อย/หย -- ยา อย่า ย่า=หญ้า ย้า หยา  ย; ญ=nj/ny ñ in Pali
-//const LOx="ກຂ_ຄ_ຄງຈສຊ_ຊຍຕຖທດດທນຕຖທທນບປຜຝພຟພມຍຣລວສສສຫລອຮ--"; //Lo ຍ=ญ, ᩀ=อย, no ฤฦ
+const TLa='ᨠᨡᨢᨣᨤᨥᨦᨧᨨᨩᨪᨫᨬᨭᨮ__ᨯᨰᨱᨲᨳᨴᨵᨶᨷᨸᨹᨺᨻᨼᨽᨾᨿᩁᩃᩅᩆᩇᩈᩉᩊᩋᩌᩂᩄ' //+ 'ᩍᩎ ᩏᩀ' 
+//TLa equiv. THa but with ຍ=ญ, ᩀ=อย/หย __ ยา อย่า ย่า=หญ้า ย้า หยา  ย; ญ=nj/ny ñ in Pali
+//const LOx="ກຂ_ຄ_ຄງຈສຊ_ຊຍຕຖທດດທນຕຖທທນບປຜຝພຟພມຍຣລວສສສຫລອຮ__"; //Lo ຍ=ญ, ᩀ=อย, no ฤฦ
 const LOa='ກຂຄງຈສຊຍດຕຖທນບປຜຝພຟມຢຣລວຫອຮ'; // Lao [lo] 28 chars
 const THb='กขคงจสซญดตถทนบปผฝพฟมยรลวหอฮ'; // 'ฉฎฏฐฑฒณธภศษฬ'excluded
-const KHa="កខ_គ_ឃងចឆជ_ឈញដឋឌឍណតថទធនប_ផ_ព_ភមយ_រលវឝឞសហឡអ_ឫឭ"; // KH no ฮ, yes ฤฦ
-const MMa="ကခ_ဂ_ဃငစဆဇ_ဈညဋဌဍဎဏတထဒဓနပ_ဖ_ဗ_ဘမယ_ရလဝၐၑသဟဠအ_ၒၔ"; // MN no ฮ, yes ฤฦ
+const KHa='កខ_គ_ឃងចឆជ_ឈញដឋ__ឌឍណតថទធនប_ផ_ព_ភមយរលវឝឞសហឡអ_ឫឭ' //-ฃฅซฑฎปฝฟฮ
+const MMa='ကခ_ဂ_ဃငစဆဇ_ဈညဋဌ__ဍဎဏတထဒဓနပ_ဖ_ဗ_ဘမယရလဝၐၑသဟဠအ_ၒၔ' // MN - ฃฅซปฝฟฮ, = ฤฦ
 
 function shuffle(arr) {
   for (var i = arr.length - 1; i > 0; i--) {
