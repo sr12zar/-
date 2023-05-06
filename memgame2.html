@@ -15,7 +15,7 @@ button {
   margin: 1px 1px;
   font-size: 28px;
 }
-#msg {
+#msg, #pairs {
   font-size: 24px;
   color: blue;
 }
@@ -78,7 +78,7 @@ button {
    <option value="abc" title="อังกฤษ">aBC</option>
  </select> 
  <button id="btn" onclick="deal()">▶️</button> 
- <span id="msg"><-กดปุ่ม เล่น</span>
+ <span id="msg"><กดปุ่ม เล่น</span>
 </p>
 <div id="board">
 </div>
@@ -100,8 +100,9 @@ const pairs = document.getElementById("pairs");
 const masks = ['🔳️','🌀️','🚭️','🔘️','🏡️','💢️','🧿️'];
 var mask = ""; // cover icon to be set each play
 var tick = "✅️";
+var qnt = ""; // a name for query and twin combo
 var query, twin; // card query and its twin arrays 
-
+//** arrays of [language] scripts for use in quizes
 const Emos=['🚗️','😀️','🐥️','🙏️','🦓️','🐓️','🦖️','🐞️','🐑️','🪑️','🥬️','🦺️','🦘️','🌶️','🐎️','⚖️',
 '🐧️','🦆️','🕒️','🚲️','🏋‍♂️️','🚣‍♀️️','👁️','☂️','🦮️','🐒️','🍏️','☢️','🥕️','🥑️','🙉️','👩‍🦽️','🌏️'];
 const Lat='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -145,15 +146,16 @@ function deal() {
   //var xgame = xmode.options[xmode.selectedIndex].value;
   // set query array and its twin array (of equivalent Thai chars)
   switch (xgame) {
-    case "emo" : query = Emos; twin = query; break;  
-    case "กขค": query = Array.from(THa); twin = query; break;
-    case "ᨠᨡค": query = Array.from(TLa); twin = Array.from(THa); break;
-    case "ກ=ก": query = Array.from(LOa); twin = Array.from(THb); break;
-    case "ក=ก": query = Array.from(KHa); twin = Array.from(THa); break; 
-    case "က=ก": query = Array.from(MMa); twin = Array.from(THa); break; 
-    case "ᨠᨡᨢ": query = Array.from(TLa); twin = query; break;
-    case "abc" : query = Array.from(Lat); twin = query; break; 
+    case "emo" : query = Emos; twin = query; qnt = "รูป-รูป"; break;  
+    case "กขค": query = Array.from(THa); twin = query; qnt = "ไทย-ไืทย"; break;
+    case "ᨠᨡค": query = Array.from(TLa); twin = Array.from(THa); qnt = "ลานนา-ไืทย"; break;
+    case "ກ=ก": query = Array.from(LOa); twin = Array.from(THb); qnt = "ลาว-ไืทย"; break;
+    case "ក=ก": query = Array.from(KHa); twin = Array.from(THa); qnt = "เขมร-ไืทย"; break; 
+    case "က=ก": query = Array.from(MMa); twin = Array.from(THa); qnt = "พม่า-ไืทย"; break; 
+    case "ᨠᨡᨢ": query = Array.from(TLa); twin = query; qnt = "ลานนา-ลานนา"; break;
+    case "abc" : query = Array.from(Lat); twin = query; qnt = "โรมัน-โรมัน"; break; 
   }
+  msg.innerText = qnt;
 
   var qrnd = [...Array(query.length).keys()]
              .sort(function(){return 0.5 - Math.random()}); // index array
@@ -254,7 +256,7 @@ function hideshow(e) {
         msg.innerText = "Yes! "+quiz[oix]+"="+quiz[cix];
         pairs.innerText += " "+quiz[oix]+"="+quiz[cix];
         opened = null; oix = null;    
-        }, 650);
+        }, 500);
       
       npairs++;
       if (npairs>=8){
@@ -275,7 +277,7 @@ function hideshow(e) {
         opened=null; 
         oix = null;
         msg.innerText = "..no?";
-      }, 800);
+      }, 300);
     }
   }
 }
