@@ -72,6 +72,7 @@ button {
    <option value="กขค" title="ลายสือไทย">กข.</option>
    <option value="ກ=ก" title="ลาว-ไทย">ກ=ก</option>
    <option value="ᨠᨡค" title="ล้านนา-ไทย">ᨠᨡค</option>
+   <option value="ݢ=ก" title="ยาวี-ไทย">ݢ=ก</option>
    <option value="ក=ก" title="พม่า-ไทย">ក=ก</option>
    <option value="က=ก" title="เขมร-ไทย">က=ก</option>
    <option value="ᨠᨡᨢ" title="ตั็วธรรม">ᨠᨡᨢ</option>
@@ -109,13 +110,29 @@ const Lat='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 //** Alphabets (?of the same origin) used in SouthEast Asia **//
 //Thg='กจฎฏดตบปอคฅฆงชซฌญฑฒณทธนพฟภมยรลวฬฮขฃฉฐถผฝศษสห'; //alphabet classic groups
 const THa='กขฃคฅฆงจฉชซฌญฏฐฑฎดฒณตถทธนบปผฝพฟภมยรลวศษสหฬอฮฤฦ';
-const TLa='ᨠᨡᨢᨣᨤᨥᨦᨧᨨᨩᨪᨫᨬᨭᨮ__ᨯᨰᨱᨲᨳᨴᨵᨶᨷᨸᨹᨺᨻᨼᨽᨾᨿᩁᩃᩅᩆᩇᩈᩉᩊᩋᩌᩂᩄ' //+ 'ᩍᩎ ᩏᩀ' 
-//TLa equiv. THa but with ຍ=ญ, ᩀ=อย/หย __ ยา อย่า ย่า=หญ้า ย้า หยา  ย; ญ=nj/ny ñ in Pali
-//const LOx="ກຂ_ຄ_ຄງຈສຊ_ຊຍຕຖທດດທນຕຖທທນບປຜຝພຟພມຍຣລວສສສຫລອຮ__"; //Lo ຍ=ญ, ᩀ=อย, no ฤฦ
+const Lan='ᨠᨡᨢᨣᨤᨥᨦᨧᨨᨩᨪᨫᨬᨭᨮ__ᨯᨰᨱᨲᨳᨴᨵᨶᨷᨸᨹᨺᨻᨼᨽᨾᨿᩁᩃᩅᩆᩇᩈᩉᩊᩋᩌᩂᩄ' //+ 'ᩍᩎ ᩏᩀ' 
+//Lan equiv. THa but with ຍ=ญ, ᩀ=อย/หย __ ยา อย่า ย่า=หญ้า ย้า หยา  ย; ญ=nj/ny ñ in Pali
+//const LOx="ກຂ_ຄ_ຄງຈສຊ_ຊຍຕຖທດດທນຕຖທທນບປຜຝພຟພມຍຣລວສສສຫລອຮ__"; //Lao ຍ=ญ, ᩀ=อย, no ฤฦ
 const LOa='ກຂຄງຈສຊຍດຕຖທນບປຜຝພຟມຢຣລວຫອຮ'; // Lao [lo] 28 chars
 const THb='กขคงจสซญดตถทนบปผฝพฟมยรลวหอฮ'; // 'ฉฎฏฐฑฒณธภศษฬ'excluded
 const KHa='កខ_គ_ឃងចឆជ_ឈញដឋ__ឌឍណតថទធនប_ផ_ព_ភមយរលវឝឞសហឡអ_ឫឭ' //-ฃฅซฑฎปฝฟฮ
 const MMa='ကခ_ဂ_ဃငစဆဇ_ဈညဋဌ__ဍဎဏတထဒဓနပ_ဖ_ဗ_ဘမယရလဝၐၑသဟဠအ_ၒၔ' // MN - ฃฅซปฝฟฮ, = ฤฦ
+//           1         5         10           15             20            25          30         35 
+const Jaw="ا‎ ب ت‎ ة‎ ث‎ ج‎ چ‎ ح‎ خ‎ د‎ ذ‎ ر‎ ز‎ س‎ ش‎ ص‎ ض‎ ط‎ ظ‎ ع‎ غ‎ ڠ‎ ف‎ ڤ‎ ق‎ ک‎ ݢ‎ ل‎ م‎ ن‎ و‎ ۏ‎ ه‎ ء‎ ي‎ ى‎ ڽ‎";
+const Thj="า ต  บ  ท ซ   ช จ  ห ข ด ฑ ร ซ   ส   ศ  ษ   ธ    ฏ   ฒ ห ฆ  ง  ฟ   ป   ค  ฅ  ก  ล  ม  น ว ฝ  ฮ -๋ -ี -ะ ญ";
+//**jawi-Thai mapping-  ค-คว:ق‎ ; ฅ-คน xว:ک ; ฆ-gh:غ‎ ; -๋:ء hamza; ซ:ث; ฑ:ذ ; า:ا‎ ; ะ:ى ; 
+//** helper to make an array out of string str
+const ArabU = /[\u0600-\u06FF\u0750-\u077F]/;
+const ThaiU = /[\u0E00-\u0E7F]/;
+
+function mkArr(str, langU) {
+  var _arr=[], k=0;
+  for (var j=0;j<str.length;j++){
+    var c = str.substr(j,1);
+    if (langU.test(c)) { _arr[k]=c; k++;}
+  }
+  return _arr;
+}
 
 function shuffle(arr) {
   for (var i = arr.length - 1; i > 0; i--) {
@@ -148,11 +165,12 @@ function deal() {
   switch (xgame) {
     case "emo" : query = Emos; twin = query; qnt = "รูป-รูป"; break;  
     case "กขค": query = Array.from(THa); twin = query; qnt = "ไทย-ไืทย"; break;
-    case "ᨠᨡค": query = Array.from(TLa); twin = Array.from(THa); qnt = "ลานนา-ไืทย"; break;
+    case "ᨠᨡค": query = Array.from(Lan); twin = Array.from(THa); qnt = "ลานนา-ไืทย"; break;
+    case "ݢ=ก" : query = mkArr(Jaw,ArabU); twin = mkArr(Thj,ThaiU); qnt = "ยาวี-ไทย"; break;
     case "ກ=ก": query = Array.from(LOa); twin = Array.from(THb); qnt = "ลาว-ไืทย"; break;
     case "ក=ก": query = Array.from(KHa); twin = Array.from(THa); qnt = "เขมร-ไืทย"; break; 
     case "က=ก": query = Array.from(MMa); twin = Array.from(THa); qnt = "พม่า-ไืทย"; break; 
-    case "ᨠᨡᨢ": query = Array.from(TLa); twin = query; qnt = "ลานนา-ลานนา"; break;
+    case "ᨠᨡᨢ": query = Array.from(Lan); twin = query; qnt = "ลานนา-ลานนา"; break;
     case "abc" : query = Array.from(Lat); twin = query; qnt = "โรมัน-โรมัน"; break; 
   }
   msg.innerText = qnt;
@@ -163,7 +181,7 @@ function deal() {
   
   // fill query and twin chars
   var q8 = [], t8 = []; // query and its twin chars in THa 
-  if (["ກ=ก","ᨠᨡค","ក=ก","က=ก"].indexOf(xgame)>-1) {
+  if (["ກ=ก","ᨠᨡค","ݢ=ก","ក=ก","က=ก"].indexOf(xgame)>-1) {
     for (var i=0; i<8; i++) {
       // handle char "_" replacing it with next unselected 
       if (query[n8[i]]=="_") {
@@ -184,7 +202,7 @@ function deal() {
 
       q8[i] = query[n8[i]]; // Query letter
       t8[i] = twin[n8[i]];  // corresp THa letter
-      //console.log("i="+i+" at="+n8[i]+" q="+query[n8[i]]+" t="+twin[n8[i]]);
+      console.log("i="+i+" at="+n8[i]+" q="+query[n8[i]]+" t="+twin[n8[i]]);
     } 
     //console.log("n8="+n8+" q8="+q8+" t8="+t8);
     quiz = shuffle([...q8, ...t8]); // mixed query and twin cards
@@ -211,7 +229,7 @@ function deal() {
 }
 
 function ismatched(xgame) {
-  if (["ກ=ก","ᨠᨡค","ក=ก","က=ก"].indexOf(xgame)>-1) {
+  if (["ກ=ก","ᨠᨡค","ݢ=ก","ក=ก","က=ก"].indexOf(xgame)>-1) {
     var cit = twin.indexOf(quiz[cix]); // -1:not in twin; else pos 
     var ciq = query.indexOf(quiz[cix]);
     //matched if a query card with the same position as opened card
@@ -253,8 +271,9 @@ function hideshow(e) {
         e.removeEventListener("click", _anonfn);
         opened.style.animation = 'none';
         opened.removeEventListener("click", _anonfn);
-        msg.innerText = "Yes! "+quiz[oix]+"="+quiz[cix];
-        pairs.innerText += " "+quiz[oix]+"="+quiz[cix];
+        var mqt = quiz[oix]+"="+quiz[cix]; // for messaging
+        msg.innerText = "Yes! "+mqt;
+        pairs.innerText +="  "+mqt+" ";
         opened = null; oix = null;    
         }, 500);
       
