@@ -117,9 +117,10 @@ const LOa='ກຂຄງຈສຊຍດຕຖທນບປຜຝພຟມຢຣລ
 const THb='กขคงจสซญดตถทนบปผฝพฟมยรลวหอฮ'; // 'ฉฎฏฐฑฒณธภศษฬ'excluded
 const KHa='កខ_គ_ឃងចឆជ_ឈញដឋ__ឌឍណតថទធនប_ផ_ព_ភមយរលវឝឞសហឡអ_ឫឭ' //-ฃฅซฑฎปฝฟฮ
 const MMa='ကခ_ဂ_ဃငစဆဇ_ဈညဋဌ__ဍဎဏတထဒဓနပ_ဖ_ဗ_ဘမယရလဝၐၑသဟဠအ_ၒၔ' // MN - ฃฅซปฝฟฮ, = ฤฦ
-//           1         5         10           15             20            25          30         35 
+//**do not edit Jaw line not knowing what 'right to left' means --behind what display below
+//         0 1         5         10           15            20            25          30         35 
 const Jaw="ا‎ ب ت‎ ة‎ ث‎ ج‎ چ‎ ح‎ خ‎ د‎ ذ‎ ر‎ ز‎ س‎ ش‎ ص‎ ض‎ ط‎ ظ‎ ع‎ غ‎ ڠ‎ ف‎ ڤ‎ ق‎ ک‎ ݢ‎ ل‎ م‎ ن‎ و‎ ۏ‎ ه‎ ء‎ ي‎ ى‎ ڽ‎";
-const Thj="า ต  บ  ท ซ   ช จ  ห ข ด ฑ ร ซ   ส   ศ  ษ   ธ    ฏ   ฒ ห ฆ  ง  ฟ   ป   ค  ฅ  ก  ล  ม  น ว ฝ  ฮ -๋ -ี -ะ ญ";
+const Thj="อ  บ ต  ท  ฐ  ช จ  ห ข ด ฑ ร ซ   ส   ศ   ษ   ธ    ฏ  ฒ  ไ ฆ  ง  ฟ   ป  ค  ฅ  ก  ล  ม น ว  ฝ  ฮ -๋  ย  เ  ญ";
 //**jawi-Thai mapping-  ค-คว:ق‎ ; ฅ-คน xว:ک ; ฆ-gh:غ‎ ; -๋:ء hamza; ซ:ث; ฑ:ذ ; า:ا‎ ; ะ:ى ; 
 //** helper to make an array out of string str
 const ArabU = /[\u0600-\u06FF\u0750-\u077F]/;
@@ -273,7 +274,7 @@ function hideshow(e) {
         opened.removeEventListener("click", _anonfn);
         var mqt = quiz[oix]+"="+quiz[cix]; // for messaging
         msg.innerText = "Yes! "+mqt;
-        pairs.innerText +="  "+mqt+" ";
+        pairs.innerText += mqt+", ";
         opened = null; oix = null;    
         }, 500);
       
