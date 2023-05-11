@@ -108,7 +108,10 @@ function shuffle(array) {
   return array;
 }
 var _anonfn = function (e) { hideshow(this); };
-
+var xgame = document.getElementById("xmode").value;
+// Google Chrome resets to first option on reload -- must reselect ***
+//var xgame = xmode.options[xmode.selectedIndex].value;
+//console.log("Game selected "+xgame);
 function deal(){
   if (reload==0) {reload=1;} 
   else {
@@ -123,10 +126,7 @@ function deal(){
   
   mask = shuffle(masks)[0]; // choose a cover
   var faces; // card-faces array
-  var xgame = document.getElementById("xmode").value;
-  // Google Chrome resets to first option on reload -- must reselect ***
-  //var xgame = xmode.options[xmode.selectedIndex].value;
-  //console.log("Game selected "+xgame);
+
   switch (xgame) {
     case "emo" : faces = Emos; break;  
     case "กขค": faces = Array.from(Tha); break; 
@@ -156,6 +156,8 @@ function hideshow(e){
   cix = cards.indexOf(e); // card position in cards
   e.innerText = quiz[cix];
   //console.log("this card is " +quiz[cix]);
+  
+  if (xgame=="กขค") { say("v"+quiz[cix]); } //**for Thai script, say it too
 
   if (opened==null){
     //console.log("No other card opened ");
@@ -208,6 +210,14 @@ function hideshow(e){
       }, 600);
     }
   }
+}
+
+const snd = document.createElement("audio");
+function say(sx){
+  var sfx = "audio/"+ sx + ".mp3";
+  snd.setAttribute('src', sfx);
+  snd.play();
+  snd.currentTime=0;
 }
 
 function ping(yn) {

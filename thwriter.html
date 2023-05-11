@@ -10,15 +10,12 @@
 }
 button {
   background-color: bisque;
-  border: 2px solid red;
-  /* color: white; */
-  height: 30px;
-  width: 50px;
+  height: 40px;
+  width: 40px;
   padding: 2px 2px;
   text-align: center;
-  text-decoration: none;
   display: inline-block;
-  /* font-size: 32px; */
+  font-size: 24px;
   margin: 2px 2px;
   cursor: pointer;
   border-radius: 35%;  
@@ -73,9 +70,10 @@ function drop(ev) {
   ev.target.appendChild(document.getElementById(pick));
 }
 
+const snd = document.createElement("audio");
 function say(sx){
   var sfx = "audio/"+ sx + ".mp3";
-  var snd = new Audio(sfx);
+  snd.setAttribute('src', sfx);
   snd.play();
   snd.currentTime=0;
 }
@@ -148,13 +146,13 @@ function check() {
 <body>
   <h1 style="text-align:center;">เขียน ก ข</h2>
 <div>
-<button id="cast" onclick="cast()" title="เปลี่ยน ก ข">_⛽️_</button> 
+<button id="cast" onclick="cast()" title="เปลี่ยน ก ข">⛽️</button> 
    เลือก แล้วลากไปใส่ กล่องเขียว
 <div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"> </div>
 </div>
 <div>
 <div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)"> </div>
-<button id="check" onclick="check()" title="เก็บคำ ไว้ตรวจ">-📩️-</button>
+<button id="check" onclick="check()" title="เก็บคำ ไว้ตรวจ">📩️</button>
   กด เก็บคำ ที่เขียนได้
 </div>
 <div id="div3" > </div>
