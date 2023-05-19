@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="th-TH">
+<meta charset="utf-8">
+<head>
+<title>Thai Braille</title>
+<style>
+/* Font-size for Braille printing ranges from 
+min 15, 16/17/18/19, 22/23, 29px max 55px
+10mm/0.4in (5mm/00.25in wide)
+San Serif font; bold is preferred.
+*/
+#thB {
+  font-size: 29px; 
+  color: black;
+}
+
+.BD:hover {
+  cursor: pointer;
+  color: red;
+  font-weight: bold;
+  background-color: yellow;
+}
+.TD {
+  font-size: 38px;
+  color: blue;
+}
+.ND {
+  font-size: 4px;
+  color: blabk;
+}
+</style>
+</head>
+<body>
+  <h2>เรียนรู้ เบรลล์ไทย</h2>
+  <p>พิมพ์ กข... / ⠛⠅... / 1245 13 ... ในช่องข้างล่าง</p>
+  <input id="ith" type="text" onchange='gen()' placeholder="สวัสดีครับกินข้าวหรือยัง">
+<!--  <button type="button" title="พิมพ์ ไทยเบรลล์" onclick="gen();">Click</button> -->
+  <div id="thB"></div>
+  <div id="Bn"></div>
+  <div id="Ino"></div>
+<script src="script/Th2Bn.js" type="text/javascript"></script>
+<script src="script/Bn2ThB.js" type="text/javascript"></script>
+<script>
+const thB = document.getElementById("thB");
+const ith = document.getElementById("ith");
+const ThaiU = /[\u0E00-\u0E7F]/;
+
+function gen() {
+  var itext = ith.value; 
+  var otext = "", oinx="", obnx="";
+  var ath=Array.from(itext);
+  //console.log("itext="+itext+" ath= "+ath);
+  for (var i=0;i<ath.length;i++) {
+    var k = ath[i];
+    oinx+='<span class="TD">'+k+'</span> '; //show when hovered
+    if (!ThaiU.test(k)) {
+      otext += k;
+      continue;
+    }
+    // should ignore all non-Thai,space,special,...?
+    //console.log("k="+k);
+    var n=Th2Bn.get(k);
+    obnx+='<span class="ND">'+n+'</span>|';
+    //console.log(k+"->"+n);
+    var b0=Bn2ThB.get(n[0]), b1="";
+    if (n.length>1) b1=Bn2ThB.get(n[1]);
+    otext +='<span class="BD">'+b0+b1+'</span>';
+  } 
+  thB.innerHTML=otext;
+  document.getElementById("Bn").innerHTML=obnx;
+  document.getElementById("Ino").innerHTML=oinx;
+}
+
+</script>
+</body>
+</html>
+
