@@ -193,7 +193,7 @@ function deal() {
         //console.log("_ found: for "+n8[i]+" at i="+i);
         var g = n8[i];
         for (var s=0;s<5;s++) {
-          g++; if (g>query.length) g -=query.length;
+          g++; if (g>query.length) g -= query.length;
           //console.log("**g="+g+" q="+query[g]+" n8="+n8);
           if (!(query[g]=="_") && (n8.indexOf(g)==-1)) {
             n8[i] = g;
@@ -207,7 +207,7 @@ function deal() {
 
       q8[i] = query[n8[i]]; // Query letter
       t8[i] = twin[n8[i]];  // corresp THa letter
-      console.log("i="+i+" at="+n8[i]+" q="+query[n8[i]]+" t="+twin[n8[i]]);
+      //console.log("i="+i+" at="+n8[i]+" q="+query[n8[i]]+" t="+twin[n8[i]]);
     } 
     //console.log("n8="+n8+" q8="+q8+" t8="+t8);
     quiz = shuffle([...q8, ...t8]); // mixed query and twin cards
@@ -276,9 +276,12 @@ function hideshow(e) {
         e.removeEventListener("click", _anonfn);
         opened.style.animation = 'none';
         opened.removeEventListener("click", _anonfn);
-        var mqt = quiz[oix]+"="+quiz[cix]; // for messaging
+        var mqt = ""; // for messaging
+        if (ThaiU.test(quiz[oix])) // need to stop Right to Left
+          mqt = quiz[cix]+"="+quiz[oix];
+        else mqt = quiz[oix]+"="+quiz[cix]; 
         msg.innerText = "Yes! "+mqt;
-        pairs.innerText += mqt+", ";
+        pairs.innerText += mqt+",\u00A0";
         opened = null; oix = null;    
         }, 500);
       
