@@ -12,6 +12,19 @@
   background-color: #ffffe6;
   border: 1px solid black;
 }
+      #plot path {
+        fill: transparent;
+        stroke: lightgrey; 
+        stroke-width: 18px;
+        stroke-dashoffset: 3000;
+      }
+      #board:hover path {
+        stroke: indigo;
+        stroke-dasharray: 3000;
+        stroke-dashoffset: 0;
+        transition: stroke-dashoffset 6s linear;
+      }
+
 #list {
   width: 95%;
   margin: auto;
@@ -51,69 +64,59 @@
 }
 </style>
 </head>
-<body>
+
+<body onload="checkDevice">
  <h1 style="text-align:center;">คัด ก ข</h1>
 <div id='board' >
   <svg id="plot" viewBox="0 100 1000 800"
-   xmlns="http://www.w3.org/2000/svg">
-  <line x1='300' y1='260' x2='700' y2='260' style="stroke:grey; stroke-width:1" />
-  <line x1='300' y1='750' x2='700' y2='750' style="stroke:grey; stroke-width:1" />
-  <style>
-   #plot path {
-    fill: none;
-    stroke: lightgrey; 
-    stroke-width: 18px;
-    stroke-dashoffset: 3000;
-   }
-   #board:hover path {
-    stroke: indigo;
-    stroke-dasharray: 3000;
-    stroke-dashoffset: 0;
-    transition: stroke-dashoffset 6s linear;
-   }
-  </style>
+    xmlns="http://www.w3.org/2000/svg" version="1.1">
 
-    <path d="" />
- 
+    <line x1='300' y1='260' x2='700' y2='260' style="stroke:grey; stroke-width:1" />
+    <line x1='300' y1='750' x2='700' y2='750' style="stroke:grey; stroke-width:1" /> 
+    <path d="M 0,100" />
+
     <circle r="10" fill="red">
       <animate 
        attributeName="fill"
        attributeType="XML"
-       values="green;lime;orange;red"
+       values="green;yellow;orange;red"
        keyTimes= "0; 0.4; 0.8; 1"
        dur="6s"
-       repeatCount="indefinite"
-       
+       repeatCount="indefinite"      
       />
       <animateMotion
-        path=""
+        path="M 0,100"
         dur="6s"
         repeatCount="indefinite"
-        restart="always"
       />
     </circle>
   </svg>
 </div>
 
 <div id='list' /> 
-
-<script type="text/javascript" src="script/กขคpaths.js"></script>
-<script type="text/javascript">
+<script src="script/กขคpaths.js"></script>
+<script>
 // declare some global variables and handles
 let plot = document.getElementById('plot');
 let path = document.querySelector('path'); 
 let pen = document.querySelector('animateMotion');
 let list = document.getElementById('list'); // list of letters
 var pathdata = "";
-// check for touch device
-const aTouch =  ( 'ontouchstart' in window ) || 
-         ( navigator.maxTouchPoints > 0 ) || 
-         ( navigator.msMaxTouchPoints > 0 );
-
+let aTouch = false; // assume touch device
+// check for a mouse on load?
+function checkDevice () {
+  let tested = false;
+  if (!tested) {
+    document.createEventListener("touchStart", () => {aTouch = true});
+    tested = true;
+  } 
+}
+ 
 //stop/restart animation with a click/touch on the board
 function redraw() {
   plot.setCurrentTime(0);
 }
+
 // make the board the restart button
 if (aTouch)
   board.addEventListener("touchStart", redraw);
@@ -124,17 +127,42 @@ else
 let letterpaths = กขค;
 let letters = Object.keys(letterpaths);
 // set up display a list of letters
-var _anonfn = function (e) { setPath(this); }; // for EventListener
 for ( let x of letters) {
-  var a = document.createElement('span'); //create a card as a span
+  var a = document.createElement('span'); //create a card as a span element with classname 'card'
   a.className = 'card';
   a.innerText = x;
-  if (aTouch) 
-    a.addEventListener("touchStart", _anonfn);
-  else
-    a.addEventListener("click", _anonfn);
   list.appendChild(a); // add to list
 }
+
+// add event click or touchStart to list
+if (!aTouch) {
+  list.addEventListener('click', function(e) {
+    e = e || list.event; // other events give errors
+    var t = e.target || e.srcElement;
+    setpath(e.target);
+   }, false);
+} else {
+  list.addEventListener('touchStart', function(e) {
+    e = e || list.event; // other events give errors
+    var t = e.target || e.srcElement;
+    setpath(e.target);
+   }, false);
+}
+
+//var _anonfn = function (e) { setpath(this); }; // for EventListener
+//for ( let x of letters) {
+//  var a = document.createElement('span'); //create a card as a span
+//  a.className = 'card';
+//  a.innerText = x;
+//  if (aTouch) {
+//    a.addEventListener("touchStart", _anonfn); 
+//    console.log('add touch');
+//  } else {
+//    a.addEventListener("click", _anonfn); 
+//    console.log('add click');
+//  }
+//  list.appendChild(a); // add to list
+//}
 //create invisible audio element
 const snd = document.createElement("audio");
 function say(x){
@@ -144,13 +172,14 @@ function say(x){
   snd.currentTime=0;
 }
 
-function setPath(e) {
+function setpath(e) {
   // pathdata = letterpaths[Object.keys(letterpaths)[parseInt(ith.value)]]; //by index 
   pathdata = letterpaths[e.innerText]; //by object key
 
   // inject pathdata into svg elements
   path.setAttribute('d', pathdata);
   pen.setAttribute('path', pathdata); 
+  pen.setAttribute('mpath', pathdata);
   redraw(); 
   // change border of the selected card
   e.style.border = '1px dashed green';
