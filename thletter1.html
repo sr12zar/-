@@ -75,12 +75,12 @@
     <line x1='300' y1='750' x2='700' y2='750' style="stroke:grey; stroke-width:1" /> 
     <path d="M 0,100" />
 
-    <circle r="10" fill="red">
+    <circle r="16" fill="red">
       <animate 
        attributeName="fill"
        attributeType="XML"
-       values="green;yellow;orange;red"
-       keyTimes= "0; 0.4; 0.8; 1"
+       values="green;lime;orange;red"
+       keyTimes= "0; 0.4; 0.7; 1"
        dur="6s"
        repeatCount="indefinite"      
       />
@@ -149,20 +149,6 @@ if (!aTouch) {
    }, false);
 }
 
-//var _anonfn = function (e) { setpath(this); }; // for EventListener
-//for ( let x of letters) {
-//  var a = document.createElement('span'); //create a card as a span
-//  a.className = 'card';
-//  a.innerText = x;
-//  if (aTouch) {
-//    a.addEventListener("touchStart", _anonfn); 
-//    console.log('add touch');
-//  } else {
-//    a.addEventListener("click", _anonfn); 
-//    console.log('add click');
-//  }
-//  list.appendChild(a); // add to list
-//}
 //create invisible audio element
 const snd = document.createElement("audio");
 function say(x){
