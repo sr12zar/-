@@ -1,3 +1,4 @@
+<!-- this version os committed with verified signature and GPG key ID: B5690EEEBB952194 -->
 <!DOCTYPE HTML>
 <html lang = "th-TH">
 <head>
@@ -12,18 +13,18 @@
   background-color: #ffffe6;
   border: 1px solid black;
 }
-      #plot path {
-        fill: transparent;
-        stroke: lightgrey; 
-        stroke-width: 18px;
-        stroke-dashoffset: 3000;
-      }
-      #board:hover path {
-        stroke: indigo;
-        stroke-dasharray: 3000;
-        stroke-dashoffset: 0;
-        transition: stroke-dashoffset 6s linear;
-      }
+  #plot path {
+    fill: transparent;
+    stroke: lightgrey; 
+    stroke-width: 18px;
+    stroke-dashoffset: 3000;
+  }
+  #board:hover path {
+    stroke: indigo;
+    stroke-dasharray: 3000;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 6s linear;
+  }
 
 #list {
   width: 95%;
@@ -67,13 +68,13 @@
 
 <body onload="checkDevice">
  <h1 style="text-align:center;">คัด ก ข</h1>
-<div id='board' >
+<div id="board" >
   <svg id="plot" viewBox="0 100 1000 800"
     xmlns="http://www.w3.org/2000/svg" version="1.1">
 
-    <line x1='300' y1='260' x2='700' y2='260' style="stroke:grey; stroke-width:1" />
-    <line x1='300' y1='750' x2='700' y2='750' style="stroke:grey; stroke-width:1" /> 
-    <path d="M 0,100" />
+    <line x1="300" y1="260" x2="700" y2="260" style="stroke:grey; stroke-width:1" />
+    <line x1="300" y1="750" x2="700" y2="750" style="stroke:grey; stroke-width:1" /> 
+    <path id="letter" d="M 0,100" />
 
     <circle r="16" fill="red">
       <animate 
@@ -81,26 +82,30 @@
        attributeType="XML"
        values="green;lime;orange;red"
        keyTimes= "0; 0.4; 0.7; 1"
-       dur="6s"
+       dur="8s"
        repeatCount="indefinite"      
       />
       <animateMotion
         path="M 0,100"
-        dur="6s"
+        dur="8s"
         repeatCount="indefinite"
       />
     </circle>
+    <path id="trace" d="M0,800" />
   </svg>
 </div>
 
-<div id='list' /> 
+<div id="list" /> 
 <script src="script/กขคpaths.js"></script>
 <script>
 // declare some global variables and handles
-let plot = document.getElementById('plot');
-let path = document.querySelector('path'); 
-let pen = document.querySelector('animateMotion');
-let list = document.getElementById('list'); // list of letters
+let board = document.getElementById("board");
+let plot = document.getElementById("plot");  // svg area
+let path = document.querySelector("path"); 
+let pen = document.querySelector("animateMotion");
+let list = document.getElementById("list"); // list of letters
+let letter = document.getElementById("letter");
+let trace = document.getElementById("trace");
 var pathdata = "";
 let aTouch = false; // assume touch device
 // check for a mouse on load?
@@ -128,21 +133,21 @@ let letterpaths = กขค;
 let letters = Object.keys(letterpaths);
 // set up display a list of letters
 for ( let x of letters) {
-  var a = document.createElement('span'); //create a card as a span element with classname 'card'
-  a.className = 'card';
+  var a = document.createElement("span"); //create a card as a span element with classname "card"
+  a.className = "card";
   a.innerText = x;
   list.appendChild(a); // add to list
 }
 
 // add event click or touchStart to list
 if (!aTouch) {
-  list.addEventListener('click', function(e) {
+  list.addEventListener("click", function(e) {
     e = e || list.event; // other events give errors
     var t = e.target || e.srcElement;
     setpath(e.target);
    }, false);
 } else {
-  list.addEventListener('touchStart', function(e) {
+  list.addEventListener("touchStart", function(e) {
     e = e || list.event; // other events give errors
     var t = e.target || e.srcElement;
     setpath(e.target);
@@ -153,27 +158,91 @@ if (!aTouch) {
 const snd = document.createElement("audio");
 function say(x){
   var sfx = "audio/v"+ x + ".mp3";
-  snd.setAttribute('src', sfx);
+  snd.setAttribute("src", sfx);
   snd.play();
   snd.currentTime=0;
 }
 
 function setpath(e) {
+  // performed for every letter selected 
   // pathdata = letterpaths[Object.keys(letterpaths)[parseInt(ith.value)]]; //by index 
   pathdata = letterpaths[e.innerText]; //by object key
 
   // inject pathdata into svg elements
-  path.setAttribute('d', pathdata);
-  pen.setAttribute('path', pathdata); 
-  pen.setAttribute('mpath', pathdata);
+  path.setAttribute("d", pathdata);
+  pen.setAttribute("path", pathdata); 
+  //pen.setAttribute("mpath", pathdata); // needed?
+  trace.setAttribute("d","");
   redraw(); 
   // change border of the selected card
-  e.style.border = '1px dashed green';
-  e.style.backgroundColor = 'white';
+  e.style.border = "1px dashed green";
+  e.style.backgroundColor = "white";
   // say the letter
   say(e.innerText);
+  track = ""; // reach out to clear trace
 }
 
+// **handle drawing of the letter by dragging on screen
+var pause = 300, 
+    track = "",
+    tracking = true;
+
+function schedule(t) {
+  tracking = false;
+  setTimeout(function() { tracking = true; }, t);
+}
+
+// setup to capture 'drag' and display its path
+var dragged = false; 
+if (aTouch) {
+    plot.addEventListener("touchStart", function () { dragged = true; track += " M";});
+    plot.addEventListener("touchEnd", function () { dragged = false; assess();  });
+    plot.addEventListener("touchMmove", function(e) { 
+      e.preventDefault(); 
+      ondrag(e); 
+    });
+  } else {
+    plot.addEventListener("mousedown", function () { dragged = true; track += " M"; });
+    plot.addEventListener("mouseup", function () { dragged = false; assess() });
+    plot.addEventListener("mousemove", function(e) { ondrag(e); });
+  }
+  
+function ondrag(e) {
+  if (!tracking) {
+      return;
+  }
+  if (dragged) {  
+    drawtrace(e);
+    schedule(pause); 
+   }
+}
+
+// tracking pointer
+function ptrXY(e) {
+  const dpt = new DOMPointReadOnly(e.clientX, e.clientY)
+  const  pt = dpt.matrixTransform(plot.getScreenCTM().inverse())
+  return [Math.round(pt.x), Math.round(pt.y) ];
+}
+
+// when mousedown or respective touch event 
+function drawtrace(e) {
+  var [ x, y ] = ptrXY(e);
+  if (track=="M") {
+    track += x+","+y+ " L";
+  }
+  else {
+    track += x+","+y+" ";
+  }
+  //console.log("track="+track); 
+  trace.style.stroke="red";
+  trace.style.strokeWidth = "6";
+  trace.setAttribute("d", track); 
+}
+
+// stub for assessing the tracing
+function assess() {
+ //check for ?similarity ?differences ?... here
+}
 </script>
 </div>
 
