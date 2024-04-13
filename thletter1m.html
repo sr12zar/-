@@ -1,0 +1,310 @@
+<!-- Author: Sunthorn Rathmnus
+     released on GPL v3 14 April 2024
+-->
+<!DOCTYPE HTML>
+<html lang = "th-TH">
+<head>
+<meta charset = "utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คัด ก ข</title>
+
+<style>
+#board {
+  width: 80%; height: 25%;
+  margin: auto;
+  background-color: #ffffe6;
+  border: 1px solid black;
+}
+  #plot path {
+    fill: transparent;
+    stroke: lightgrey; 
+    stroke-width: 20;
+    stroke-dashoffset: 3000;
+  }
+  #board:hover path {
+    stroke: indigo;
+    stroke-dasharray: 3000;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 6s linear;
+  }
+
+#btns {
+  width: 95%;
+  margin: auto;
+}
+
+.card {
+  width: 50px; height: 56px;
+  background-color: yellow;
+  border: 1px solid lime;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 48px;
+  line-height: 1.1;
+  vertical-align: middle;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 15%;
+}
+.card:hover {
+  animation: shake 0.5s;
+  animation-iteration-count: 2; 
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.hidden {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+ <h1 style="text-align:center;">คัด ก ข</h1>
+<div id="board" >
+  <svg id="plot" viewBox="0 100 1000 800"
+    xmlns="http://www.w3.org/2000/svg" version="1.1">
+
+    <line x1="300" y1="260" x2="700" y2="260" style="stroke:grey; stroke-width:1" />
+    <line x1="300" y1="750" x2="700" y2="750" style="stroke:grey; stroke-width:1" /> 
+    <path id="letter" d="M 0,100" />
+
+    <circle r="16" fill="red">
+      <animate 
+       attributeName="fill"
+       attributeType="XML"
+       values="green;lime;orange;red"
+       keyTimes= "0; 0.4; 0.7; 1"
+       dur="8s"
+       repeatCount="indefinite"      
+      />
+      <animateMotion
+        path="M 0,100"
+        dur="8s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <path id="trace" d="M0,800" />
+    <text id="score" x="750" y="750" fill="green" font-size="60"> </text>
+  </svg>
+</div>
+
+<div id="btns" /> 
+<script src="script/กขคpaths.js"></script>
+<script>
+// declare some global variables and handles
+const board = document.getElementById("board");
+const plot = document.getElementById("plot");  // svg area
+const path = document.querySelector("path"); 
+const pen = document.querySelector("animateMotion");
+const btns = document.getElementById("btns"); // btns of cards
+const letter = document.getElementById("letter");
+const trace = document.getElementById("trace");
+const score = document.getElementById("score");
+//create invisible audio element
+const snd = document.createElement("audio");
+
+var pathdata = "",
+    nMs;    // M's in pathdata -> multipaths, assumed 1 M
+// **handle drawing of the letter by dragging on screen
+var tracepts = "",  // waypoints x,y of path drawn
+    nsegs, // line segments drawn
+    tracing = false;
+  
+var aPhone = true; // assume a click device
+ 
+//stop/restart animation with a click/touch on the board
+function redraw() {
+  if (pathdata)
+    plot.setCurrentTime(0);
+}
+
+// get keys of letterpaths
+const letterpaths = กขค;
+const letters = Object.keys(letterpaths);
+
+function mkcards() {
+  // set up display a btns of letters
+  for ( let x of letters) {
+    let a = document.createElement("span"); //create a card as a span element with classname "card"
+    a.className = "card";
+    a.innerText = x;
+    btns.appendChild(a); // add to btns
+  }
+}
+
+function say(x){
+  let sfx = "audio/v"+ x + ".mp3";
+  snd.setAttribute("src", sfx);
+  snd.play();
+  snd.currentTime=0;
+}
+
+function showletter(e) {
+  // a letter selected 
+  pathdata = letterpaths[e.innerText]; //by object key
+
+  nMs = pathdata.split("M").length - 1; // how many M commands
+  nsegs = 0;
+  tracepts = "";
+  tracing = false;
+
+  score.classList.add("hidden"); // hide the score
+  // inject pathdata into svg elements
+  path.setAttribute("d", pathdata);
+  pen.setAttribute("path", pathdata); 
+  trace.setAttribute("d", tracepts);
+  redraw(); 
+  // change border of the selected card
+  e.style.border = "1px dashed green";
+  e.style.backgroundColor = "white";
+  // audio the letter
+  say(e.innerText);
+}
+
+function setup() {
+  mkcards(); 
+
+  btns.addEventListener("touchstart", (e) => {
+    let t = e.changedTouches[0].target;
+    showletter(t);  
+  }, false,);
+
+  plot.addEventListener("touchend", (e) => {
+    let t = e.touches[0] ?? e.changedTouches[0];
+    //console.log("touchend: "+t.clientX+","+t.clientY);
+    detapper();  
+  }, false);
+   
+  plot.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    let t = e.touches[0] ?? e.changedTouches[0];
+    //console.log("touchmove: "+t.clientX+","+t.clientY);
+    ondrag(t);
+  }, false,);
+
+  console.log("All set...Go!");
+} //** end setup
+
+//**run main process to capture 'drag' and display its path
+document.addEventListener("DOMContentLoaded", setup);
+
+function detapper() {
+// decode the sequence of taps (click|touch) to actions
+  if (!tracing) { 
+    tracing = true; // turn on tracing    
+    if (!nsegs || nsegs == nMs) tracepts = ""; // not-started/done-already
+    showmark("✏️"); 
+  } else { 
+    if (tracepts) {
+      tracing = false; // force to tap again to end/continue
+      nsegs = tracepts.split("M").length - 1;
+      if (nsegs < nMs)  // not yet all paths
+        tracepts += "   M";// add new segment        
+      else 
+        assess(); // compare tracepts to path
+    }      
+  }
+}
+
+function ondrag(e) {
+// capture tracepts every 300ms
+    drawtrace(e);
+    setTO(); 
+}
+
+function setTO(t=300) {
+// turn tracing off until timeout t occurs
+  tracing = false; 
+  setTimeout(function() { tracing = true; }, t);
+}
+
+// tracing pointer
+function ptrXY(e) {
+  let x, y;
+  x = e.clientX;
+  y = e.clientY;
+
+  const dpro = new DOMPointReadOnly(x, y);
+  const  pt = dpro.matrixTransform(plot.getScreenCTM().inverse());
+  //console.log("point:"+pt.x+","+pt.y);
+  return [Math.round(pt.x), Math.round(pt.y) ];
+}
+
+// when mousemove or touchMove
+function drawtrace(e) {
+  let [ x, y ] = ptrXY(e);
+  if (tracepts=="") {
+    tracepts += " M"+x+","+y;
+  }
+  else {
+    tracepts += " "+x+","+y;
+  }
+  // redraw to look real
+  trace.style.stroke="red";
+  trace.style.strokeWidth = "10";
+  trace.setAttribute("d", tracepts); 
+}
+
+function showmark(x) {
+  score.textContent=x;
+  score.classList.remove("hidden");
+}
+  
+function assess() {
+// asses dragged tracepts against letterpath
+// pick sample points from length 10,step 50 while length<getPointAtLength(path)
+// compare subtract and square and sum then divide by # sample points
+// give mark by value within range (...) 
+let bb1 = letter.getBBox();
+let bb2 = trace.getBBox();
+//console.log("BBox1 " + bb1.width +" x "+ bb1.height);
+//console.log("    2 " + bb2.width +" x "+ bb2.height);
+let pl1 = letter.getTotalLength(), pl2 = trace.getTotalLength();
+//console.log("TPL " + pl1 +" =? "+ pl2);
+
+let pts1 = [], pts2 = [];
+let da = 0, sumda = 0, avgda = 0, npts = 0, minda = 10000, Maxda = 0, maxp;
+for (let l = 10; l<pl1; l+=50) {
+  let p1 = letter.getPointAtLength(l),
+      p2 = trace.getPointAtLength(l);
+  da = Math.abs((p1.x - p2.x)*(p1.y - p2.y)); // difference as an area
+  sumda += da; // sum total diff area
+  if (da < minda) minda = da; // find minimum
+  if (da > Maxda) {Maxda = da; maxp = p2;} // find Maximum, save the point 
+  npts++;
+  pts1.push([Math.round(p1.x),Math.round(p1.y)]); // for debug
+  pts2.push([Math.round(p2.x),Math.round(p2.y)]); 
+  }
+  
+  //console.log("pts1 " + pts1);
+  //console.log("pts2 " + pts2);
+  if (npts) avgda = sumda/npts;
+  //console.log("min:"+minda+" Max:"+Maxda+ " at:("+maxp.x+","+maxp.y+") avg:"+avgda+" sum:"+sumda);
+  let dif = 100*sumda/(bb1.width * bb1.height);
+  // assess the draw by dif%
+  if (dif<2.01) showmark("♥️"); // very good
+  else if (dif<10.01) showmark("✔️"); // good
+  else if (dif<30.01) showmark("🐞️"); // OK but
+  else showmark("❓️"); // more practice
+  console.log("Your mark:"+dif+"% pts: "+npts);
+}
+</script>
+</div>
+
+</body> 
+</html> 
+
