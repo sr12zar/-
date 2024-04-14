@@ -18,7 +18,7 @@
   #plot path {
     fill: transparent;
     stroke: lightgrey; 
-    stroke-width: 20;
+    stroke-width: 32;
     stroke-dashoffset: 3000;
   }
   #board:hover path {
@@ -98,7 +98,7 @@
       />
     </circle>
     <path id="trace" d="M0,800" />
-    <text id="score" x="750" y="750" fill="green" font-size="60"> </text>
+    <text id="score" x="750" y="750" fill="green" font-size="125"> </text>
   </svg>
 </div>
 
@@ -255,7 +255,7 @@ function drawtrace(e) {
   }
   // redraw to look real
   trace.style.stroke="red";
-  trace.style.strokeWidth = "10";
+  trace.style.strokeWidth = "16";
   trace.setAttribute("d", tracepts); 
 }
 
